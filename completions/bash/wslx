@@ -1,0 +1,13 @@
+# Bash completion for the foundation command set.
+_wslx_complete() {
+    local current
+    current="${COMP_WORDS[COMP_CWORD]}"
+
+    if (( COMP_CWORD == 1 )); then
+        COMPREPLY=( $(compgen -W "help version doctor uninstall" -- "$current") )
+    else
+        COMPREPLY=()
+    fi
+}
+
+complete -F _wslx_complete wslx

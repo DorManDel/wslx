@@ -1,0 +1,139 @@
+#!/usr/bin/env bash
+# WSLX command-line entry point.
+#
+# Responsibility:
+#   1. Locate the WSLX installation/repository root.
+#   2. Load shared libraries.
+#   3. Parse the top-level command.
+#   4. Dispatch to the correct feature.
+#
+# Feature implementations intentionally do not live here. Foundation 001 only
+# provides help/version/doctor/uninstall; PathX begins in WSLX-002.
+
+set -euo pipefail
+
+WSLX_BIN_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+WSLX_REPO_CANDIDATE="$(cd -- "$WSLX_BIN_DIR/.." && pwd)"
+WSLX_INSTALLED_CANDIDATE="$(cd -- "$WSLX_BIN_DIR/../share/wslx" 2>/dev/null && pwd || true)"
+
+if [[ -f "$WSLX_REPO_CANDIDATE/VERSION" && -d "$WSLX_REPO_CANDIDATE/lib" ]]; then
+    WSLX_ROOT="$WSLX_REPO_CANDIDATE"
+elif [[ -n "$WSLX_INSTALLED_CANDIDATE" && -f "$WSLX_INSTALLED_CANDIDATE/VERSION" ]]; then
+    WSLX_ROOT="$WSLX_INSTALLED_CANDIDATE"
+else
+    printf 'wslx: unable to locate WSLX data files. Reinstall WSLX.\n' >&2
+    exit 1
+fi
+
+# shellcheck source=../lib/ui.sh
+source "$WSLX_ROOT/lib/ui.sh"
+# shellcheck source=../lib/core.sh
+source "$WSLX_ROOT/lib/core.sh"
+
+show_help() {
+    cat <<EOF_HELP
+WSLX $(wslx_version)
+Windows ↔ WSL productivity toolkit
+
+Usage:
+  wslx <command> [options]
+
+Foundation commands:
+  help        Show this help
+  version     Print the installed version
+  doctor      Check the current WSLX environment
+  uninstall   Remove the current user installation
+
+Planned next:
+  path        Convert Windows ↔ WSL paths (WSLX-002)
+  open        Open a path with Windows Explorer
+  clip        Copy data to the Windows clipboard
+
+Examples:
+  wslx help
+  wslx doctor
+  wslx version
+  wslx uninstall
+
+Documentation:
+  docs/MAP.md      living architecture + file map
+  docs/ROADMAP.md  planned command catalog
+EOF_HELP
+}
+
+run_doctor() {
+    local failures=0
+
+    printf '%sWSLX Doctor%s\n\n' "$WSLX_BOLD" "$WSLX_RESET"
+
+    if wslx_is_wsl; then
+        wslx_success "Running inside WSL"
+    else
+        wslx_warn "Not running inside WSL (expected in CI or repository tests only)"
+    fi
+
+    if wslx_require_command bash; then
+        wslx_success "bash is available"
+    else
+        wslx_error "bash is missing"
+        failures=$((failures + 1))
+    fi
+
+    if [[ -f "$WSLX_ROOT/VERSION" ]]; then
+        wslx_success "version file: $(wslx_version)"
+    else
+        wslx_error "VERSION file is missing"
+        failures=$((failures + 1))
+    fi
+
+    if [[ -f "$WSLX_ROOT/docs/MAP.md" || "$WSLX_ROOT" == */share/wslx ]]; then
+        wslx_success "WSLX root resolved: $WSLX_ROOT"
+    else
+        wslx_error "WSLX root is incomplete: $WSLX_ROOT"
+        failures=$((failures + 1))
+    fi
+
+    printf '\n'
+    if (( failures == 0 )); then
+        wslx_success "Foundation checks passed"
+    else
+        wslx_error "$failures foundation check(s) failed"
+    fi
+
+    return "$failures"
+}
+
+run_uninstall() {
+    if [[ ! -x "$WSLX_ROOT/uninstall.sh" ]]; then
+        wslx_error "uninstaller was not found at $WSLX_ROOT/uninstall.sh"
+        return 1
+    fi
+
+    exec "$WSLX_ROOT/uninstall.sh" "$@"
+}
+
+command_name="${1:-help}"
+if (( $# > 0 )); then
+    shift
+fi
+
+case "$command_name" in
+    help|-h|--help)
+        show_help
+        ;;
+    version|-v|--version)
+        wslx_version
+        ;;
+    doctor)
+        run_doctor "$@"
+        ;;
+    uninstall)
+        run_uninstall "$@"
+        ;;
+    *)
+        wslx_error "Unknown command: $command_name"
+        printf '\n' >&2
+        show_help >&2
+        exit 2
+        ;;
+esac

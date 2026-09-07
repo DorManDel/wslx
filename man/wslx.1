@@ -1,0 +1,37 @@
+.TH WSLX 1 "September 2026" "WSLX 0.1.0-dev" "User Commands"
+.SH NAME
+wslx \- Windows and WSL productivity toolkit
+.SH SYNOPSIS
+.B wslx
+.RI < command >
+.RI [ options ]
+.SH DESCRIPTION
+WSLX is a modular command-line toolkit intended to make Windows and WSL
+interoperation safer and faster. Foundation 001 provides the project shell,
+installer, uninstaller, diagnostics, documentation discipline and tests.
+.SH COMMANDS
+.TP
+.B help
+Show top-level help.
+.TP
+.B version
+Print the installed version.
+.TP
+.B doctor
+Run foundation environment checks.
+.TP
+.B uninstall
+Remove the current user installation.
+.SH FILES
+.TP
+.I ~/.local/bin/wslx
+Default CLI entry point.
+.TP
+.I ~/.local/share/wslx
+Default WSLX data directory.
+.TP
+.I ~/.bashrc
+Contains one optional, clearly marked WSLX managed block.
+.SH SEE ALSO
+.BR bash (1),
+.BR wslpath (1)
