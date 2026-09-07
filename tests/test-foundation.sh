@@ -6,7 +6,11 @@ ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$ROOT_DIR/tests/testlib.sh"
 
 expected_version="$(cat "$ROOT_DIR/VERSION")"
-actual_version="$($ROOT_DIR/bin/wslx version)"
+
+# Keep the executable path quoted so repository locations containing spaces
+# remain a single shell word.
+actual_version="$("$ROOT_DIR/bin/wslx" version)"
+
 assert_eq "$expected_version" "$actual_version" "wslx version reads VERSION"
 
 if "$ROOT_DIR/bin/wslx" help | grep -q 'WSLX'; then

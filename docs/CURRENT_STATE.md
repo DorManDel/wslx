@@ -20,6 +20,12 @@ Status: **COMPLETE**
 - [x] one-command installed uninstall (`wslx uninstall`)
 - [x] Bash completion foundation
 - [x] basic man page
+- [x] Windows/WSL Git line-ending policy via `.gitattributes`
+- [x] Windows-mounted NTFS file-mode behavior documented
+- [x] ShellCheck integrated into the developer validation gate
+- [x] Foundation shell code passes ShellCheck
+- [x] real WSL validation: tests, lint, and `wslx doctor`
+
 
 ## Active command set
 
@@ -28,7 +34,12 @@ Status: **COMPLETE**
 - `wslx doctor`
 - `wslx uninstall`
 
-## Next
+## Before WSLX-002
+
+Publish the validated Foundation baseline to GitHub and verify a clean
+clone -> test -> install -> doctor -> uninstall lifecycle.
+
+## Next feature
 
 **WSLX-002 — PathX**
 

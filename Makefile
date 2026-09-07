@@ -23,8 +23,8 @@ test:
 lint:
 	@if command -v shellcheck >/dev/null 2>&1; then \
 		printf 'Running ShellCheck...\n'; \
-		find bin lib shell scripts tests -type f -print0 | xargs -0 shellcheck; \
-		shellcheck install.sh uninstall.sh; \
+		find bin lib shell scripts tests -type f -print0 | xargs -0 shellcheck -x -P SCRIPTDIR; \
+		shellcheck -x -P SCRIPTDIR install.sh uninstall.sh; \
 	else \
 		printf 'ShellCheck not installed; lint step skipped.\n'; \
 	fi

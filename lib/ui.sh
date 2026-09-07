@@ -6,6 +6,11 @@
 # ANSI escape sequences.
 
 # Enable colors only for an interactive terminal and when NO_COLOR is unset.
+#
+# These variables form part of the shared UI library API. Some of them are
+# consumed by scripts that source this file, so ShellCheck cannot always see
+# their usage when ui.sh is analyzed independently.
+# shellcheck disable=SC2034
 if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
     WSLX_RED=$'\033[31m'
     WSLX_GREEN=$'\033[32m'

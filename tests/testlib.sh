@@ -28,13 +28,26 @@ assert_eq() {
 assert_file_exists() {
     local path="$1"
     local description="$2"
-    [[ -f "$path" ]] && pass "$description" || fail "$description (missing: $path)"
+
+    # Use an explicit branch instead of "A && B || C".
+    # The latter is not a true if/else expression because C can also run
+    # when B itself returns a failure status.
+    if [[ -f "$path" ]]; then
+        pass "$description"
+    else
+        fail "$description (missing: $path)"
+    fi
 }
 
 assert_file_missing() {
     local path="$1"
     local description="$2"
-    [[ ! -e "$path" ]] && pass "$description" || fail "$description (still exists: $path)"
+
+    if [[ ! -e "$path" ]]; then
+        pass "$description"
+    else
+        fail "$description (still exists: $path)"
+    fi
 }
 
 finish_tests() {

@@ -1,0 +1,18 @@
+# WSLX repository text-file policy.
+#
+# WSLX lives at the boundary between Windows and Linux/WSL.
+# These rules normalize text files and ensure Linux-oriented files
+# keep LF line endings even when the repository is handled by Windows.
+
+* text=auto
+
+# Shell scripts must use Unix LF line endings.
+*.sh       text eol=lf
+*.bash     text eol=lf
+
+# Development and documentation files are kept consistent as LF.
+Makefile   text eol=lf
+*.md       text eol=lf
+*.1        text eol=lf
+VERSION    text eol=lf
+.gitignore text eol=lf

@@ -14,7 +14,23 @@ set -euo pipefail
 
 WSLX_BIN_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 WSLX_REPO_CANDIDATE="$(cd -- "$WSLX_BIN_DIR/.." && pwd)"
-WSLX_INSTALLED_CANDIDATE="$(cd -- "$WSLX_BIN_DIR/../share/wslx" 2>/dev/null && pwd || true)"
+
+# Resolve the installed data directory only when it actually exists.
+#
+# An explicit if statement is used instead of:
+#
+#     A && B || C
+#
+# because that expression is not a true if/else construct. C can also run
+# when B fails. The explicit branch makes the control flow unambiguous.
+WSLX_INSTALLED_CANDIDATE=""
+
+if [[ -d "$WSLX_BIN_DIR/../share/wslx" ]]; then
+    WSLX_INSTALLED_CANDIDATE="$(
+        cd -- "$WSLX_BIN_DIR/../share/wslx"
+        pwd
+    )"
+fi
 
 if [[ -f "$WSLX_REPO_CANDIDATE/VERSION" && -d "$WSLX_REPO_CANDIDATE/lib" ]]; then
     WSLX_ROOT="$WSLX_REPO_CANDIDATE"
@@ -25,9 +41,12 @@ else
     exit 1
 fi
 
-# shellcheck source=../lib/ui.sh
+# The runtime path is dynamic, but ShellCheck needs a static repository path
+# so it can inspect the sourced library during linting.
+# shellcheck source=lib/ui.sh
 source "$WSLX_ROOT/lib/ui.sh"
-# shellcheck source=../lib/core.sh
+
+# shellcheck source=lib/core.sh
 source "$WSLX_ROOT/lib/core.sh"
 
 show_help() {

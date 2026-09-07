@@ -56,6 +56,7 @@ wslx/
 |-- README.md            user-facing project introduction
 |-- CHANGELOG.md         release-level summary history
 |-- LICENSE              project license
+├── .gitattributes       Git text / line-ending portability policy
 `-- .gitignore           excludes local/generated noise
 ```
 
@@ -72,12 +73,13 @@ wslx/
 | `tests/` | Automatic proof. | Dependency-free checks for CLI contracts, installation safety, idempotence, uninstall cleanup and documentation-map discipline. |
 | `docs/` | Why the project is built this way. | Architecture, current state, workflow, command teaching documents and timestamped continuity records. Detailed learning explanations live here rather than overcrowding production source. |
 | `man/` | Fast terminal manual. | Concise reference designed for `man wslx`; it complements, rather than replaces, the deeper docs. |
-| repository root | Lifecycle/control. | Install/uninstall, Make targets, versioning, user README, changelog, license and repository hygiene. |
+| repository root | Lifecycle/control. | Install/uninstall, Make targets, versioning, Git portability policy, user README, changelog, license and repository hygiene. |
 
 ## 3. File-by-file explanation
 
 | File | Why it exists |
 |---|---|
+| `.gitattributes` | Defines Git text and line-ending portability rules across Windows and WSL. It normalizes repository text and forces Linux-oriented files such as `.sh` and `.bash` to use LF. It does not control Unix executable permissions; mode-only NTFS changes are handled locally with `git config core.fileMode false`. |
 | `.gitignore` | Keeps editor, OS, temporary test and local environment noise out of Git history. |
 | `VERSION` | Single source for the current WSLX version used by CLI/docs/installations. |
 | `LICENSE` | Defines legal reuse/distribution terms; Foundation uses MIT. |
@@ -97,7 +99,7 @@ wslx/
 | `tests/testlib.sh` | Minimal assertion helpers so tests need no Bats/Python/npm dependency. |
 | `tests/test-foundation.sh` | Verifies version/help/unknown-command behavior of the entry point. |
 | `tests/test-install.sh` | Installs into a temporary HOME, tests idempotence, tests installed execution, then verifies safe uninstall. |
-| `tests/test-map.sh` | Ensures every structural file (except timestamp log instances) is explicitly named in this Mapxplanation. |
+| `tests/test-map.sh` | Ensures every Git-relevant structural file (except timestamp log instances) is explicitly named in this Mapxplanation while respecting `.gitignore`. |
 | `docs/MAP.md` | Canonical living architecture + sector + file explanation. |
 | `docs/ARCHITECTURE.md` | Records boundaries, safe smart-path policy, installation model and map invariant. |
 | `docs/DEVELOPMENT.md` | Defines the update discipline: record -> code -> tests -> docs/map -> check -> commit. |

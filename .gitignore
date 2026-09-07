@@ -13,3 +13,8 @@ coverage/
 .env
 .env.*
 !.env.example
+
+# Personal VS Code workspace/layout state.
+# Kept local because it describes the maintainer's editor layout,
+# not WSLX project behavior.
+wslx.code-workspace

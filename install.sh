@@ -138,7 +138,11 @@ if (( ENABLE_SHELL == 1 )); then
 
     {
         printf '\n%s\n' "$START_MARKER"
-        printf 'export PATH="%s/bin:$PATH"\n' "$PREFIX"
+
+        # Expand PREFIX during installation, but preserve the literal "$PATH"
+        # expression so Bash expands it later when the user's .bashrc is loaded.
+        printf 'export PATH="%s/bin:%s"\n' "$PREFIX" "\$PATH"
+
         printf 'if [[ -r "%s/shell/bash/wslx.bash" ]]; then source "%s/shell/bash/wslx.bash"; fi\n' "$DATA_DIR" "$DATA_DIR"
         printf 'if [[ -r "%s/completions/bash/wslx" ]]; then source "%s/completions/bash/wslx"; fi\n' "$DATA_DIR" "$DATA_DIR"
         printf '%s\n' "$END_MARKER"
