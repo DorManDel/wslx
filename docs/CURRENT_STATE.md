@@ -34,10 +34,18 @@ Status: **COMPLETE**
 - `wslx doctor`
 - `wslx uninstall`
 
-## Before WSLX-002
+## Foundation validation
 
-Publish the validated Foundation baseline to GitHub and verify a clean
-clone -> test -> install -> doctor -> uninstall lifecycle.
+Status: **COMPLETE**
+
+- [x] published to GitHub
+- [x] fresh GitHub clone
+- [x] clean-clone `make check`
+- [x] install from fresh clone
+- [x] installed `wslx version`
+- [x] installed `wslx doctor`
+- [x] uninstall
+- [x] reinstall
 
 ## Next feature
 
