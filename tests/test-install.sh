@@ -16,7 +16,10 @@ assert_file_exists "$TEST_HOME/.local/bin/wslx" "installer creates CLI entry poi
 assert_file_exists "$TEST_HOME/.local/share/wslx/lib/core.sh" "installer copies shared libraries"
 assert_file_exists \
     "$TEST_HOME/.local/share/wslx/commands/path.sh" \
-    "installer copies PathX command module"
+    "installer copies path interoperability module"
+assert_file_exists \
+    "$TEST_HOME/.local/share/wslx/docs/COMMANDS.md" \
+    "installer copies CLI grammar reference"
 
 marker_count="$(grep -Fxc '# >>> WSLX managed block >>>' "$TEST_HOME/.bashrc")"
 assert_eq "1" "$marker_count" "installer injects one managed Bash block"
@@ -31,13 +34,21 @@ assert_eq "$(cat "$ROOT_DIR/VERSION")" "$installed_version" "installed CLI resol
 
 installed_path="$(
     HOME="$TEST_HOME" \
-    "$TEST_HOME/.local/bin/wslx" path 'D:\Programming\Test'
+    "$TEST_HOME/.local/bin/wslx" 'D:\Programming\Test'
 )"
-
 assert_eq \
     "/mnt/d/Programming/Test" \
     "$installed_path" \
-    "installed PathX converts Windows path to WSL"
+    "installed CLI normalizes a Windows path for WSL"
+
+installed_windows_path="$(
+    HOME="$TEST_HOME" \
+    "$TEST_HOME/.local/bin/wslx" --win '/mnt/d/Programming/Test'
+)"
+assert_eq \
+    'D:\Programming\Test' \
+    "$installed_windows_path" \
+    "installed CLI returns Windows path on request"
 
 HOME="$TEST_HOME" "$TEST_HOME/.local/bin/wslx" uninstall --yes >/dev/null
 assert_file_missing "$TEST_HOME/.local/bin/wslx" "uninstall removes CLI entry point"

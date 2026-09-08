@@ -6,31 +6,36 @@ _wslx_complete() {
     current="${COMP_WORDS[COMP_CWORD]}"
     command_name="${COMP_WORDS[1]:-}"
 
-    # First argument after `wslx`: complete top-level commands.
     if (( COMP_CWORD == 1 )); then
-        COMPREPLY=(
-            $(compgen -W "help version doctor path uninstall" -- "$current")
-        )
+        if [[ "$current" == -* ]]; then
+            COMPREPLY=(
+                $(compgen -W "--help --version --wsl --win --link" -- "$current")
+            )
+        else
+            COMPREPLY=(
+                $(compgen -W "help version doctor path uninstall" -- "$current")
+            )
+        fi
         return
     fi
 
-    # PathX-specific options.
     if [[ "$command_name" == "path" ]]; then
         case "$current" in
             -*)
                 COMPREPLY=(
-                    $(compgen -W "--to-wsl --to-windows --help" -- "$current")
+                    $(compgen -W "--wsl --win --link --help" -- "$current")
                 )
                 ;;
             *)
                 COMPREPLY=()
                 ;;
         esac
-
         return
     fi
 
     COMPREPLY=()
 }
 
-complete -F _wslx_complete wslx
+# Let Bash fall back to normal filename completion when WSLX has no custom
+# completion candidate for the current operand.
+complete -o default -F _wslx_complete wslx

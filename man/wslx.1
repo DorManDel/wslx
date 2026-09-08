@@ -3,25 +3,67 @@
 wslx \- Windows and WSL productivity toolkit
 .SH SYNOPSIS
 .B wslx
-.RI < command >
-.RI [ options ]
+.RI < path >
+.br
+.B wslx path
+.RI [ options ] " <path>"
+.br
+.B wslx
+.RI --win " <path>"
+.br
+.B wslx
+.RI --link " <path>"
+.br
+.B wslx
+.RI < command > " [options]"
 .SH DESCRIPTION
-WSLX is a modular command-line toolkit intended to make Windows and WSL
-interoperation safer and faster. Foundation 001 provides the project shell,
-installer, uninstaller, diagnostics, documentation discipline and tests.
+WSLX is a small command-line toolkit for Windows and WSL interoperability.
+The path command normalizes Windows paths for use in WSL by default, while
+explicit options can return Windows form or an interactive hyperlink.
 .SH COMMANDS
 .TP
-.B help
-Show top-level help.
+.B path
+Make a path usable in WSL. Windows drive paths are converted; WSL/Linux paths
+remain unchanged.
+.TP
+.B doctor
+Check the current WSLX environment and installation.
 .TP
 .B version
 Print the installed version.
 .TP
-.B doctor
-Run foundation environment checks.
-.TP
 .B uninstall
-Remove the current user installation.
+Remove the current-user installation.
+.TP
+.B help
+Show top-level help.
+.SH PATH OPTIONS
+.TP
+.B --wsl
+Return WSL form. This is the default path behavior.
+.TP
+.B --win
+Return the Windows representation of a path.
+.TP
+.B --link
+Display the Windows representation as an OSC-8 terminal hyperlink when stdout
+is interactive. Non-interactive output is plain text.
+.TP
+.BR -h , " --help"
+Show path-specific help when used with the path command.
+.SH EXAMPLES
+.TP
+.B wslx 'D:\Programming\Test'
+Print /mnt/d/Programming/Test.
+.TP
+.B wslx /mnt/d/Programming/Test
+Keep the WSL path unchanged.
+.TP
+.B wslx --win /mnt/d/Programming/Test
+Print D:\Programming\Test.
+.TP
+.B wslx --link /mnt/d/Programming/Test
+Show the Windows path as a clickable link when the terminal supports it.
 .SH FILES
 .TP
 .I ~/.local/bin/wslx

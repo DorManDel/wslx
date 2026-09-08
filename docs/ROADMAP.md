@@ -1,62 +1,57 @@
 # WSLX Command Roadmap
 
-This is the idea catalog, not a promise that every command belongs in the first
-release. We add commands only when they solve a repeated WSL/Windows workflow.
+This is the feature catalog. Command names follow `docs/COMMANDS.md` so new
+features extend one consistent CLI instead of inventing their own naming style.
 
 ## Core interoperability
 
-| Command | Short description | Elaborated behavior |
-|---|---|---|
-| `pathx` / `wslx path` | Convert a path. | Detect Windows vs WSL syntax, delegate conversion to `wslpath`, support explicit direction flags, spaces, clipboard output and clear errors. |
-| `wopen` / `wslx open` | Open from Windows. | Accept a WSL or Windows path, normalize it, then open the file/folder using the appropriate Windows shell/Explorer behavior. |
-| `wclip` / `wslx clip` | Copy to Windows clipboard. | Accept text arguments or stdin and send the exact result to the native Windows clipboard without contaminating piped output with status text. |
-| `wpaste` / `wslx paste` | Read Windows clipboard. | Fetch clipboard text into WSL so it can be printed, piped to another command, or optionally saved to a file. |
-| `wrun` / `wslx run` | Run a Windows program. | Launch `.exe`/Windows commands from WSL and safely pre-convert arguments known to be paths before execution. |
-| `wcd` | `cd` to a Windows path. | Shell-only function that converts `D:\\...` to `/mnt/d/...` and changes the *current Bash process* directory; implemented in shell integration, not as a child executable. |
-| `wcode` | Open project in VS Code. | Normalize the project path and invoke the preferred VS Code/WSL bridge consistently from either path format. |
+| Command | Alias | Status | Purpose |
+|---|---|---|---|
+| `wslx path <path>` | `wslx <path>` | Current | Make a path usable in WSL; use `--win` for Windows form and `--link` for an interactive Windows hyperlink. |
+| `wslx cd <path>` | `wcd <path>` | Next | Convert a Windows/WSL path if needed and change the current Bash directory. |
+| `wslx open <path>` | `wopen <path>` | Planned | Open a file or folder through Windows/Explorer behavior. |
+| `wslx clip` | `wclip` | Planned | Copy arguments or stdin to the Windows clipboard. |
+| `wslx paste` | `wpaste` | Planned | Read Windows clipboard text into WSL. |
+| `wslx code <path>` | `wcode <path>` | Planned | Open a project or file in VS Code using the correct WSL/Windows path context. |
+| `wslx run <program> [args...]` | `wrun` | Planned | Run Windows programs from WSL and convert only declared/path-like arguments before execution. |
 
-## Diagnostics and process helpers
+## Diagnostics
 
-| Command | Short description | Elaborated behavior |
-|---|---|---|
-| `doctor` | Diagnose WSLX. | Verify WSL environment, expected Windows bridge executables, installation layout, PATH, shell integration and optional productivity dependencies. |
-| `winfo` | Show WSL environment. | Summarize distro, kernel, WSL version signals, Windows interop state, mount information and key executable locations. |
-| `drives` | Show Windows drives/mounts. | Display mounted Windows drives and their WSL mount points in a concise table. |
-| `ports` | Show useful listening ports. | Present port, PID, process and address information in a developer-friendly view instead of making the user combine `ss`, `lsof`, and `ps`. |
-| `killport` | Stop the owner of a port. | Resolve a port to a process, display what will be terminated, default to `SIGTERM`, ask for confirmation, and reserve force-kill for an explicit flag. |
+| Command | Purpose |
+|---|---|
+| `wslx doctor` | Verify WSL, installation layout, shell integration, PATH, and required bridges. |
+| `wslx info` | Summarize distro, kernel, WSL version, interop state, mounts, and useful executable locations. |
+| `wslx drives` | Show mounted Windows drives and their WSL mount points. |
+| `wslx ports` | Show listening ports with PID/process information. |
+| `wslx kill-port <port>` | Resolve a port to a process, show the target, confirm, then terminate safely. |
 
-## Smart shell / navigation experiments
+## Navigation experiments
 
-| Command | Short description | Elaborated behavior |
-|---|---|---|
-| `wslx exec` | Execute with safe path resolution. | Inspect declared/path-like arguments, convert invalid Windows paths *before* running the target command, and never blindly retry side-effecting commands after failure. |
-| `jump` | Interactive project jump. | Use `zoxide` history when available and optionally `fzf` for fuzzy interactive selection; this is integration, not a reimplementation of those mature tools. |
-| `pick` | Interactive file/dir picker. | Combine `fd`/`find` with `fzf`, returning a selected path that can feed `cd`, `wopen`, editors, or scripts. |
-| smart `cd` mode | Transparently accept Windows paths. | Optional opt-in Bash integration that detects a Windows-looking argument and converts it before invoking the real `cd`; disabled by default until thoroughly tested. |
+| Command | Purpose |
+|---|---|
+| `wslx jump` | Jump to known projects/directories; integrate with `zoxide` and optionally `fzf` when available. |
+| `wslx pick` | Interactively select a file/directory using existing tools such as `fd`/`find` + `fzf`. |
+| smart `cd` mode | Optional Bash mode where the normal `cd` can accept Windows paths; keep disabled by default until well tested. |
 
 ## Package lifecycle
 
-| Command | Short description | Elaborated behavior |
-|---|---|---|
-| `wslx install` | Install/update local package. | Future self-bootstrap/update layer around the safe installer; initial install still starts from a cloned/downloaded repository. |
-| `wslx uninstall` | Remove WSLX. | Already present in Foundation 001; removes only WSLX-owned files and the marked shell block. |
-| `wslx update` | Update WSLX. | Fetch a signed/tagged release or Git checkout update, validate it, run tests/migrations if needed, then replace the local install. |
-| `wslx config` | Manage options. | Expose user preferences such as colors, smart-path opt-in, aliases and integrations without requiring hand-edits to `.bashrc`. |
+| Command | Purpose |
+|---|---|
+| `wslx install` | Future self-bootstrap layer around the repository installer. |
+| `wslx update` | Update from a validated release or Git checkout. |
+| `wslx uninstall` | Remove WSLX-owned files and its managed shell block. |
+| `wslx config` | Manage preferences such as colors, aliases, smart-path behavior, and integrations. |
 
-## Existing tools that inspire integrations
+## Existing tools to integrate instead of rebuilding
 
-- **zoxide** — learns frequently/recently visited directories and makes jumping
-  to them much shorter than typing full paths.
-- **fzf** — fuzzy interactive selector: type a few letters and narrow a large
-  list live inside the terminal.
-- **ripgrep (`rg`)** — very fast recursive text/code search.
-- **fd** — simpler, developer-friendly file search.
-- **bat** — `cat`-style output with syntax highlighting and useful paging.
-- **eza** — modern directory listing.
-- **tldr** — concise usage examples for commands.
-- **jq** — command-line JSON processing.
-- **direnv** — automatically loads project-specific environment settings.
-- **atuin** — searchable, richer shell history.
+- `wslpath` — native Windows/WSL path conversion backend.
+- `explorer.exe` — Windows Explorer bridge available from WSL.
+- `clip.exe` — Windows clipboard output.
+- `zoxide` — learned/frequent directory jumping.
+- `fzf` — fuzzy interactive selection.
+- `fd` / `find` — file discovery.
+- `ripgrep (rg)` — fast recursive text search.
+- `jq` — command-line JSON processing.
 
-WSLX should integrate with good existing tools where that gives more value than
-rebuilding them.
+WSLX should wrap mature tools when the wrapper removes Windows/WSL friction;
+it should not reimplement them without a reason.

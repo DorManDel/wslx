@@ -5,6 +5,17 @@ timestamped engineering records live in `docs/changes/`.
 
 ## [Unreleased]
 
+### Added — WSLX-002 Path Interop
+
+- Windows paths normalize to WSL form by default.
+- `wslx <path>` direct shortcut and explicit `wslx path <path>` form.
+- Human-readable `--wsl`, `--win`, and `--link` options.
+- Interactive Windows-path hyperlinks with plain output for pipes/capture.
+- CLI naming/alias contract in `docs/COMMANDS.md`.
+- Standard command-design contract template for future features.
+- Professional README command reference and WSLX SVG mark.
+- Colored test output, suite summary, failure exit codes, and rerun hints.
+
 ### Added — WSLX-001
 
 - Project/repository foundation.

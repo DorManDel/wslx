@@ -3,26 +3,16 @@
 #
 # Responsibility:
 #   1. Locate the WSLX installation/repository root.
-#   2. Load shared libraries.
-#   3. Parse the top-level command.
+#   2. Load shared libraries and feature modules.
+#   3. Parse top-level input.
 #   4. Dispatch to the correct feature.
 #
-# Feature implementations intentionally do not live here. Foundation 001 only
-# provides help/version/doctor/uninstall; PathX begins in WSLX-002.
+# Feature behavior lives in commands/*.sh rather than growing this dispatcher.
 
 set -euo pipefail
 
 WSLX_BIN_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 WSLX_REPO_CANDIDATE="$(cd -- "$WSLX_BIN_DIR/.." && pwd)"
-
-# Resolve the installed data directory only when it actually exists.
-#
-# An explicit if statement is used instead of:
-#
-#     A && B || C
-#
-# because that expression is not a true if/else construct. C can also run
-# when B fails. The explicit branch makes the control flow unambiguous.
 WSLX_INSTALLED_CANDIDATE=""
 
 if [[ -d "$WSLX_BIN_DIR/../share/wslx" ]]; then
@@ -41,15 +31,12 @@ else
     exit 1
 fi
 
-# The runtime path is dynamic, but ShellCheck needs a static repository path
-# so it can inspect the sourced library during linting.
 # shellcheck source=lib/ui.sh
 source "$WSLX_ROOT/lib/ui.sh"
 
 # shellcheck source=lib/core.sh
 source "$WSLX_ROOT/lib/core.sh"
 
-# Load the PathX feature command.
 # shellcheck source=commands/path.sh
 source "$WSLX_ROOT/commands/path.sh"
 
@@ -60,28 +47,29 @@ Windows ↔ WSL productivity toolkit
 
 Usage:
   wslx <command> [options]
+  wslx <path>
 
 Commands:
-  help        Show this help
-  version     Print the installed version
+  path        Make a path usable in WSL
   doctor      Check the current WSLX environment
+  version     Print the installed version
   uninstall   Remove the current user installation
-  path        Convert Windows ↔ WSL paths
+  help        Show this help
 
-Planned next:
-  path        Convert Windows ↔ WSL paths (WSLX-002)
-  open        Open a path with Windows Explorer
-  clip        Copy data to the Windows clipboard
+Path shortcuts:
+  wslx <path>          Same as: wslx path <path>
+  wslx --wsl <path>    Return WSL form (default)
+  wslx --win <path>    Return Windows form
+  wslx --link <path>   Show a clickable Windows link in an interactive terminal
 
 Examples:
-  wslx help
+  wslx 'D:\Programming\Test'
+  wslx path '/mnt/d/Programming/Test'
+  wslx --win '/mnt/d/Programming/Test'
+  wslx --link '/mnt/d/Programming/Test'
   wslx doctor
-  wslx version
-  wslx uninstall
 
-Documentation:
-  docs/MAP.md      living architecture + file map
-  docs/ROADMAP.md  planned command catalog
+Run 'wslx path --help' for path-specific help.
 EOF_HELP
 }
 
@@ -136,10 +124,22 @@ run_uninstall() {
     exec "$WSLX_ROOT/uninstall.sh" "$@"
 }
 
-command_name="${1:-help}"
-if (( $# > 0 )); then
-    shift
+wslx_looks_like_path_operand() {
+    local value="$1"
+
+    [[ "$value" =~ ^[A-Za-z]:[\\/].* ]] ||
+        [[ "$value" == /* ]] ||
+        [[ "$value" == "." || "$value" == ".." ]] ||
+        [[ "$value" == ./* || "$value" == ../* ]] ||
+        [[ -e "$value" ]]
+}
+
+if (( $# == 0 )); then
+    show_help
+    exit 0
 fi
+
+command_name="$1"
 
 case "$command_name" in
     help|-h|--help)
@@ -149,18 +149,28 @@ case "$command_name" in
         wslx_version
         ;;
     doctor)
+        shift
         run_doctor "$@"
         ;;
     path)
+        shift
+        wslx_path_main "$@"
+        ;;
+    --wsl|--win|--link)
         wslx_path_main "$@"
         ;;
     uninstall)
+        shift
         run_uninstall "$@"
         ;;
     *)
-        wslx_error "Unknown command: $command_name"
-        printf '\n' >&2
-        show_help >&2
-        exit 2
+        if wslx_looks_like_path_operand "$command_name"; then
+            wslx_path_main "$@"
+        else
+            wslx_error "Unknown command: $command_name"
+            printf '\n' >&2
+            show_help >&2
+            exit 2
+        fi
         ;;
 esac

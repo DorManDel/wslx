@@ -15,23 +15,49 @@ fi
 
 actual="$("$WSLX" path 'D:\Programming\Test')"
 assert_eq "/mnt/d/Programming/Test" "$actual" \
-    "automatic Windows -> WSL conversion"
+    "path converts Windows input to WSL"
 
 actual="$("$WSLX" path '/mnt/d/Programming/Test')"
-assert_eq 'D:\Programming\Test' "$actual" \
-    "automatic WSL -> Windows conversion"
-
-actual="$("$WSLX" path --to-wsl 'D:\Programming\Test')"
 assert_eq "/mnt/d/Programming/Test" "$actual" \
-    "explicit --to-wsl conversion"
+    "path keeps WSL input usable in WSL"
 
-actual="$("$WSLX" path --to-windows '/mnt/d/Programming/Test')"
+actual="$("$WSLX" 'D:\Programming\Test')"
+assert_eq "/mnt/d/Programming/Test" "$actual" \
+    "direct path shortcut converts Windows input"
+
+actual="$("$WSLX" '/mnt/d/Programming/Test')"
+assert_eq "/mnt/d/Programming/Test" "$actual" \
+    "direct path shortcut keeps WSL input"
+
+actual="$("$WSLX" path --wsl 'D:\Programming\Test')"
+assert_eq "/mnt/d/Programming/Test" "$actual" \
+    "explicit --wsl conversion"
+
+actual="$("$WSLX" path --win '/mnt/d/Programming/Test')"
 assert_eq 'D:\Programming\Test' "$actual" \
-    "explicit --to-windows conversion"
+    "explicit --win conversion"
 
-actual="$("$WSLX" path 'D:\Programming Files\Test')"
+actual="$("$WSLX" --win '/mnt/d/Programming/Test')"
+assert_eq 'D:\Programming\Test' "$actual" \
+    "top-level --win shortcut"
+
+actual="$("$WSLX" path --win 'D:\Programming\Test')"
+assert_eq 'D:\Programming\Test' "$actual" \
+    "--win keeps Windows input in Windows form"
+
+# Captured output is not a TTY, so --link intentionally falls back to plain
+# Windows text rather than leaking OSC-8 escape sequences into a pipe/script.
+actual="$("$WSLX" --link '/mnt/d/Programming/Test')"
+assert_eq 'D:\Programming\Test' "$actual" \
+    "--link falls back to plain Windows path when not interactive"
+
+actual="$("$WSLX" 'D:\Programming Files\Test')"
 assert_eq "/mnt/d/Programming Files/Test" "$actual" \
     "paths containing spaces are preserved"
+
+actual="$(cd "$ROOT_DIR" && "$WSLX" .)"
+assert_eq "." "$actual" \
+    "existing relative path shortcut is accepted"
 
 if "$WSLX" path >/dev/null 2>&1; then
     fail "missing path returns exit code 2"
@@ -48,10 +74,10 @@ else
 fi
 
 help_output="$("$WSLX" path --help)"
-if [[ "$help_output" == *"wslx path"* ]]; then
-    pass "path help renders"
+if [[ "$help_output" == *"--win"* && "$help_output" == *"--link"* ]]; then
+    pass "path help renders current options"
 else
-    fail "path help renders"
+    fail "path help renders current options"
 fi
 
 finish_tests

@@ -1,87 +1,64 @@
 # WSLX Current State
 
 Version: `0.1.0-dev`  
-Phase: **WSLX-002 — PathX**
+Phase: **WSLX-002 — Path Interop final refinement**
 
-## WSLX-001 — Foundation Commit
-
-Status: **COMPLETE**
-
-- [x] Git repository skeleton
-- [x] CLI entry point
-- [x] shared core/UI libraries
-- [x] living Mapxplanation
-- [x] command roadmap
-- [x] timestamped change-record workflow
-- [x] dependency-free automated tests
-- [x] `Makefile` convenience commands
-- [x] per-user installer
-- [x] safe/idempotent Bash managed block
-- [x] one-command installed uninstall (`wslx uninstall`)
-- [x] Bash completion foundation
-- [x] basic man page
-- [x] Windows/WSL Git line-ending policy via `.gitattributes`
-- [x] Windows-mounted NTFS file-mode behavior documented
-- [x] ShellCheck integrated into the developer validation gate
-- [x] Foundation shell code passes ShellCheck
-- [x] real WSL validation: tests, lint, and `wslx doctor`
-
-
-## Foundation validation
+## WSLX-001 — Foundation
 
 Status: **COMPLETE**
 
-- [x] published to GitHub
-- [x] fresh GitHub clone
-- [x] clean-clone `make check`
-- [x] install from fresh clone
-- [x] installed `wslx version`
-- [x] installed `wslx doctor`
-- [x] uninstall
-- [x] reinstall
+Foundation, installer/uninstaller, shell integration, completion foundation,
+Mapxplanation, portability rules and clean-clone validation are complete.
 
-## WSLX-002 — PathX
+## WSLX-002 — Path Interop
 
-Status: **IN PROGRESS**
+Status: **IN PROGRESS — FINAL GATE**
 
-Goal: implement Windows ↔ WSL path conversion as the first real WSLX feature.
+Goal: make Windows/WSL paths predictable and easy to use from WSL.
 
-### Command interface
+### Current interface
 
 ```bash
+wslx <path>
 wslx path <path>
-wslx path --to-wsl <path>
-wslx path --to-windows <path>
+wslx --wsl <path>
+wslx --win <path>
+wslx --link <path>
 ```
 
 ### Completed
 
-- [x] PathX command module created
-- [x] dispatcher integration
-- [x] automatic Windows → WSL conversion
-- [x] automatic WSL → Windows conversion
-- [x] explicit `--to-wsl`
-- [x] explicit `--to-windows`
-- [x] paths containing spaces
-- [x] command help
-- [x] argument/error tests
-- [x] installer copies PathX command module
-- [x] PathX tests pass from the development checkout
-- [x] installed PathX execution test
-- [x] Bash completion update
-- [x] `docs/commands/path.md`
-- [x] Mapxplanation updated for PathX structure
+- [x] Windows input normalizes to WSL by default
+- [x] WSL input stays usable in WSL by default
+- [x] direct `wslx <path>` shortcut
+- [x] explicit `wslx path <path>` form
+- [x] `--wsl`, `--win`, `--link`
+- [x] interactive `--link` confirmed clickable in the user's VS Code WSL terminal
+- [x] plain-text `--link` fallback for captured output
+- [x] CLI grammar documented in `docs/COMMANDS.md`
+- [x] future command naming/contracts normalized
+- [x] README command table and workflow sections redesigned
+- [x] WSLX SVG logo added
+- [x] command-document contract template standardized
+- [x] colored test assertions and suite summary prepared
+- [x] failed-suite output includes exit code and rerun command
 
-### Validation
+### Last validated Path Interop baseline
 
-- [x] installer test: 11 passed, 0 failed
-- [x] map test: 32 passed, 0 failed
-- [x] PathX test: 8 passed, 0 failed
-- [x] Foundation test: 3 passed, 0 failed
-- [x] ShellCheck
-- [x] `git diff --check`
-- [x] final `make check`
+- [x] Foundation: 3 passed, 0 failed
+- [x] Installer: 13 passed, 0 failed
+- [x] Map: 33 passed, 0 failed
+- [x] Path: 14 passed, 0 failed
+- [x] ShellCheck passed
+- [x] `git diff --check` passed
+- [x] installed smoke tests passed
 
-WSLX-002 — PathX is complete.
+### Remaining after applying this refinement batch
 
-Current step: review, commit, push, and merge the PathX branch.
+- [ ] run final `make check`
+- [ ] run final `git diff --check`
+- [ ] inspect `git status -sb`
+- [ ] commit and push PR #1
+
+Current step: apply the final README/logo/test-UX refinement and run the final
+gate before commit.

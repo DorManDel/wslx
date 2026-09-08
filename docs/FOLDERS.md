@@ -2,18 +2,24 @@
 
 This document explains what each WSLX directory owns and where new code belongs.
 
-## `bin/`
+## `assets/`
 
-**Purpose:** executable entry points.
+**Purpose:** repository-facing visual assets.
 
 Current contents:
 
+- `wslx-logo.svg` — WSLX Windows/WSL terminal mark used by the README.
+
+---
+
+## `bin/`
+
+**Purpose:** executable entry points and top-level dispatch.
+
 - `bin/wslx` — main WSLX CLI.
 
-Put code here when it is responsible for starting WSLX, loading modules,
-parsing top-level commands, or dispatching commands.
-
-Feature implementations belong in `commands/`.
+Feature implementations belong in `commands/`; `bin/wslx` stays focused on
+startup, loading, top-level parsing and dispatch.
 
 ---
 
@@ -21,17 +27,10 @@ Feature implementations belong in `commands/`.
 
 **Purpose:** user-facing WSLX feature implementations.
 
-Current contents:
-
 - `README.md` — command-module rules.
-- `path.sh` — PathX Windows ↔ WSL path conversion.
+- `path.sh` — Windows/WSL path interoperability.
 
-Future examples:
-
-- `open.sh`
-- `clip.sh`
-
-One user-facing command should normally have one command module here.
+Future examples include `open.sh`, `clip.sh` and `run.sh`.
 
 ---
 
@@ -39,28 +38,18 @@ One user-facing command should normally have one command module here.
 
 **Purpose:** reusable logic shared by multiple commands.
 
-Current contents:
-
-- `core.sh` — environment, version, and common command helpers.
-- `ui.sh` — output, colors, warnings, and errors.
-
-Put logic here when multiple features need it.
+- `core.sh` — environment, version and common command helpers.
+- `ui.sh` — output, colors, warnings and errors.
 
 ---
 
 ## `shell/`
 
-**Purpose:** functionality that must execute inside the user's current shell.
-
-Current contents:
+**Purpose:** behavior that must execute in the user's current shell.
 
 - `shell/bash/wslx.bash`
 
-Example future feature:
-
-- `wcd`
-
-This directory is used when WSLX needs to modify parent-shell state.
+Future examples: `wslx cd <path>` shell handling and the `wcd` shortcut.
 
 ---
 
@@ -68,28 +57,22 @@ This directory is used when WSLX needs to modify parent-shell state.
 
 **Purpose:** shell TAB completion.
 
-Current contents:
-
 - `completions/bash/wslx`
 
-Update this when commands or options are added.
+Update this when commands or options are added or renamed.
 
 ---
 
 ## `tests/`
 
-**Purpose:** automated verification.
+**Purpose:** automated verification and developer-facing test output.
 
-Current contents:
-
-- `run.sh` — runs all test suites.
-- `testlib.sh` — shared assertions.
+- `run.sh` — runs every suite and prints the final suite summary/references.
+- `testlib.sh` — shared assertions and colored PASS/FAIL output.
 - `test-foundation.sh` — foundation CLI behavior.
-- `test-install.sh` — installation lifecycle.
-- `test-map.sh` — Mapxplanation structural contract.
-- `test-path.sh` — PathX behavior.
-
-Every feature or bug fix should receive automated coverage here when possible.
+- `test-install.sh` — installation lifecycle and installed path behavior.
+- `test-map.sh` — structural documentation contract.
+- `test-path.sh` — path interoperability behavior.
 
 ---
 
@@ -97,20 +80,17 @@ Every feature or bug fix should receive automated coverage here when possible.
 
 **Purpose:** developer automation.
 
-Current contents:
-
 - `new-change.sh` — creates timestamped engineering records.
-
-These tools help maintain WSLX rather than serving normal CLI users.
 
 ---
 
 ## `docs/`
 
-**Purpose:** project knowledge and explanations.
+**Purpose:** project knowledge, contracts and explanations.
 
 Important files:
 
+- `COMMANDS.md` — CLI grammar, naming, aliases and command contracts.
 - `MAP.md` — living architecture and structural map.
 - `FOLDERS.md` — this folder ownership guide.
 - `ARCHITECTURE.md` — architecture and system boundaries.
@@ -120,21 +100,12 @@ Important files:
 
 ### `docs/commands/`
 
-Detailed explanation of individual WSLX commands.
-
-Current PathX document:
-
-- `docs/commands/path.md`
+Command contract template plus deep explanations for implemented commands.
 
 ### `docs/changes/`
 
-Timestamped engineering records containing:
-
-- what changed;
-- why it changed;
-- validation;
-- result;
-- next step.
+Timestamped engineering records describing what changed, why, validation,
+result and next step.
 
 ---
 
@@ -142,56 +113,28 @@ Timestamped engineering records containing:
 
 **Purpose:** Unix manual pages.
 
-Current contents:
-
 - `wslx.1`
 
 ---
 
 ## Repository root
 
-Project-level lifecycle and configuration files live here.
-
-Current examples:
-
-- `install.sh`
-- `uninstall.sh`
-- `Makefile`
-- `VERSION`
-- `README.md`
-- `CHANGELOG.md`
-- `.gitignore`
-- `.gitattributes`
-
----
+Project lifecycle/configuration files live here, including `install.sh`,
+`uninstall.sh`, `Makefile`, `VERSION`, `README.md`, `CHANGELOG.md`, `.gitignore`
+and `.gitattributes`.
 
 ## Quick placement rule
 
 ```text
-User-facing command?
-    -> commands/
-
-Reusable logic?
-    -> lib/
-
-Current-shell behavior?
-    -> shell/
-
-TAB completion?
-    -> completions/
-
-Automated verification?
-    -> tests/
-
-Developer automation?
-    -> scripts/
-
-Documentation?
-    -> docs/
-
-Terminal manual?
-    -> man/
-
-CLI startup / dispatcher?
-    -> bin/
+Visual/repository asset?  -> assets/
+User-facing command?      -> commands/
+Reusable logic?           -> lib/
+Current-shell behavior?   -> shell/
+TAB completion?           -> completions/
+Automated verification?   -> tests/
+Developer automation?     -> scripts/
+CLI/naming contract?      -> docs/COMMANDS.md
+Detailed explanation?     -> docs/
+Terminal manual?          -> man/
+CLI startup / dispatcher? -> bin/
 ```
