@@ -1,71 +1,92 @@
 # WSLX
 
-WSLX is a Windows ↔ WSL productivity toolkit designed as a real installable CLI
-package rather than a collection of copied `.bashrc` snippets.
+WSLX is a small command-line toolkit for working between Windows and WSL.
 
-**Current status:** `WSLX-001` foundation complete. Real interoperability
-commands begin with PathX in `WSLX-002`.
+Current feature: **PathX**, which converts paths between Windows and WSL formats.
 
-## Foundation commands
+## Install
 
-```bash
-./bin/wslx help
-./bin/wslx version
-./bin/wslx doctor
-```
-
-## Validate the repository
+Open WSL and run:
 
 ```bash
-make check
-```
-
-The tests have no required third-party test framework. If ShellCheck is
-installed, `make lint` uses it automatically.
-
-## Install inside WSL
-
-```bash
+git clone https://github.com/DorManDel/wslx.git
+cd wslx
 ./install.sh
 source ~/.bashrc
+```
+
+Check the installation:
+
+```bash
+wslx version
 wslx doctor
 ```
 
-The default install is per-user under `~/.local`; no `sudo` is required.
-Re-running the installer is supported and does not duplicate the managed Bash
-block.
+WSLX installs for the current user under `~/.local`. `sudo` is not required.
+
+## Path conversion
+
+Windows to WSL:
+
+```bash
+wslx path 'D:\Programming\Test'
+```
+
+```text
+/mnt/d/Programming/Test
+```
+
+WSL to Windows:
+
+```bash
+wslx path '/mnt/d/Programming/Test'
+```
+
+```text
+D:\Programming\Test
+```
+
+You can also choose the direction explicitly:
+
+```bash
+wslx path --to-wsl 'D:\Programming\Test'
+wslx path --to-windows '/mnt/d/Programming/Test'
+```
+
+For command help:
+
+```bash
+wslx path --help
+```
+
+## Update
+
+From your cloned repository:
+
+```bash
+git pull
+./install.sh
+source ~/.bashrc
+```
 
 ## Uninstall
-
-From anywhere after installation:
 
 ```bash
 wslx uninstall
 ```
 
-or from a source checkout:
+Then refresh the current shell:
 
 ```bash
-./uninstall.sh
+source ~/.bashrc
 ```
 
-## GitHub-ready install flow
+## Development
 
-Once the repository is published as `DorManDel/wslx`, another computer can use:
+Run the project checks with:
 
 ```bash
-git clone https://github.com/DorManDel/wslx.git && cd wslx && ./install.sh
+make check
 ```
 
-A direct bootstrap one-liner can be added later after release/version integrity
-checks exist; the clone-first method is intentionally easier to inspect.
-
-## Living documentation
-
-- `docs/MAP.md` — canonical architecture/file "Mapxplanation".
-- `docs/ROADMAP.md` — command ideas with short and detailed descriptions.
-- `docs/CURRENT_STATE.md` — where development currently stands.
-- `docs/DEVELOPMENT.md` — required update/test/commit workflow.
-- `docs/changes/` — timestamped records of meaningful changes.
-
-See `make help` for the common development shortcuts.
+Project documentation is under `docs/`.

@@ -58,7 +58,7 @@ wslx/
 |-- uninstall.sh         safe package removal
 |-- Makefile             developer control panel
 |-- VERSION              package version
-|-- README.md            user-facing introduction
+|-- README.md            quick start / install / basic usage
 |-- CHANGELOG.md         release-level history
 |-- LICENSE              project license
 |-- .gitattributes       Git text / line-ending policy
@@ -88,7 +88,7 @@ wslx/
 | `.gitignore` | Keeps personal editor state, temporary files, and generated/local noise outside Git history. |
 | `VERSION` | Single source for the current WSLX version. |
 | `LICENSE` | Defines project reuse and distribution terms. |
-| `README.md` | User-facing introduction, installation, and basic usage. |
+| `README.md` | Short user guide covering clone/install, PathX basics, update, uninstall, and the development check command. |
 | `CHANGELOG.md` | Release-level project history. |
 | `Makefile` | Developer control surface for tests, lint, checks, install, uninstall, doctor, and change records. |
 | `install.sh` | Installs WSLX into the per-user prefix, including shared libraries, PathX, shell integration, completion, documentation, and manual files. |
