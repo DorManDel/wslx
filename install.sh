@@ -85,24 +85,29 @@ say "→ prefix: $PREFIX"
 
 mkdir -p "$BIN_DIR" "$DATA_DIR" "$MAN_DIR"
 
-# Replace the previous WSLX data atomically enough for a small shell package:
-# remove only our own data directory, recreate it, then copy repository files.
 rm -rf "$DATA_DIR"
-mkdir -p "$DATA_DIR/lib" "$DATA_DIR/shell/bash" "$DATA_DIR/completions/bash" "$DATA_DIR/docs" "$DATA_DIR/man"
+mkdir -p \
+    "$DATA_DIR/lib" \
+    "$DATA_DIR/commands" \
+    "$DATA_DIR/shell/bash" \
+    "$DATA_DIR/completions/bash" \
+    "$DATA_DIR/docs" \
+    "$DATA_DIR/man"
 
 install -m 0755 "$ROOT_DIR/bin/wslx" "$BIN_DIR/wslx"
 install -m 0644 "$ROOT_DIR/VERSION" "$DATA_DIR/VERSION"
 install -m 0644 "$ROOT_DIR/lib/core.sh" "$DATA_DIR/lib/core.sh"
 install -m 0644 "$ROOT_DIR/lib/ui.sh" "$DATA_DIR/lib/ui.sh"
+install -m 0644 "$ROOT_DIR/commands/path.sh" "$DATA_DIR/commands/path.sh"
 install -m 0644 "$ROOT_DIR/shell/bash/wslx.bash" "$DATA_DIR/shell/bash/wslx.bash"
 install -m 0644 "$ROOT_DIR/completions/bash/wslx" "$DATA_DIR/completions/bash/wslx"
 install -m 0755 "$ROOT_DIR/uninstall.sh" "$DATA_DIR/uninstall.sh"
 install -m 0644 "$ROOT_DIR/man/wslx.1" "$MAN_DIR/wslx.1"
 
-# Keep the two living overview documents available to an installed copy so
-# `wslx doctor` can still resolve a complete installation root.
+# Keep the living overview/command documents with an installed copy.
 install -m 0644 "$ROOT_DIR/docs/MAP.md" "$DATA_DIR/docs/MAP.md"
 install -m 0644 "$ROOT_DIR/docs/ROADMAP.md" "$DATA_DIR/docs/ROADMAP.md"
+install -m 0644 "$ROOT_DIR/docs/COMMANDS.md" "$DATA_DIR/docs/COMMANDS.md"
 
 strip_managed_block() {
     local file="$1"
@@ -138,11 +143,7 @@ if (( ENABLE_SHELL == 1 )); then
 
     {
         printf '\n%s\n' "$START_MARKER"
-
-        # Expand PREFIX during installation, but preserve the literal "$PATH"
-        # expression so Bash expands it later when the user's .bashrc is loaded.
         printf 'export PATH="%s/bin:%s"\n' "$PREFIX" "\$PATH"
-
         printf 'if [[ -r "%s/shell/bash/wslx.bash" ]]; then source "%s/shell/bash/wslx.bash"; fi\n' "$DATA_DIR" "$DATA_DIR"
         printf 'if [[ -r "%s/completions/bash/wslx" ]]; then source "%s/completions/bash/wslx"; fi\n' "$DATA_DIR" "$DATA_DIR"
         printf '%s\n' "$END_MARKER"
@@ -154,4 +155,4 @@ if (( ENABLE_SHELL == 1 )); then
     say "✓ Bash integration managed in: $BASHRC"
     say "→ start a new Bash shell, or run: source \"$BASHRC\""
 fi
-say "→ try: wslx doctor"
+say "→ try: wslx 'D:\\Programming\\Test'"

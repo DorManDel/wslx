@@ -3,93 +3,54 @@
 Every meaningful WSLX change follows the same small loop:
 
 ```text
-1. Create timestamp record
-2. Update implementation
-3. Update/extend tests
-4. Update relevant explanation docs
-5. Update docs/MAP.md
-6. Update docs/CURRENT_STATE.md
-7. Run make check
-8. Commit
+1. Define/refine the command contract
+2. Create/update the timestamp record
+3. Update implementation
+4. Update/extend tests
+5. Update relevant explanation docs
+6. Update docs/MAP.md when structure/responsibility changes
+7. Update docs/CURRENT_STATE.md
+8. Run make check
+9. Commit
 ```
+
+For new commands, use the contract template in `docs/commands/README.md` before
+implementation. Naming must agree with `docs/COMMANDS.md`.
 
 ## Start a change
 
 ```bash
-make change NAME=add-pathx
+make change NAME=<short-change-name>
 ```
 
 This creates a timestamped Markdown record in `docs/changes/` using the local
 time zone.
 
-## Required documentation discipline
+## Documentation discipline
 
 When a change affects structure or responsibility, update `docs/MAP.md` in the
-same commit. When it affects a command, update its future
-`docs/commands/<command>.md` explanation as well.
+same commit. Command behavior belongs in `docs/commands/<command>.md`.
 
-The production source should contain comments that explain responsibility and
-non-obvious decisions. Detailed line-by-line teaching belongs in the docs so
-source files stay readable.
+Source comments should explain responsibility and non-obvious decisions. Deep
+teaching belongs in docs so production shell code stays readable.
 
 ## Windows / WSL Git portability
 
-WSLX may be developed from a repository stored on a Windows-mounted
-filesystem such as `/mnt/c`, `/mnt/d`, or another mounted Windows drive.
-
-### File-mode metadata
-
-Windows NTFS and Linux do not expose Unix executable permission metadata in
-exactly the same way.
-
-A clean repository may therefore appear modified even when file contents have
-not changed, for example:
-
-```text
-mode change 100644 => 100755
-```
-
-When the change is metadata-only, configure that clone locally with:
+For repositories stored on `/mnt/c`, `/mnt/d`, or another Windows-mounted
+filesystem, use repository-local:
 
 ```bash
 git config core.fileMode false
 ```
 
-This setting is intentionally repository-local. It prevents Git from treating
-Windows/WSL permission-mode differences as source-code changes.
+WSLX also uses `.gitattributes` to normalize text and keep Linux-oriented files
+on LF line endings.
 
-### Line endings
+## ShellCheck
 
-Windows commonly uses CRLF line endings while Linux and WSL tools expect LF.
-
-WSLX therefore uses the repository-root `.gitattributes` file to normalize
-text and force Linux-oriented files such as `.sh` and `.bash` to use LF.
-
-This is especially important for shell scripts because CRLF can introduce a
-literal carriage-return character (`\r`) into the shebang or script content
-and cause execution failures.
-
-`core.fileMode=false` and `.gitattributes` solve different problems:
-
-```text
-core.fileMode=false
-    -> local filesystem permission metadata
-
-.gitattributes
-    -> repository text and line-ending policy
-```
-
-### ShellCheck
-
-ShellCheck is the static-analysis tool used for WSLX shell code.
-
-The runtime and structural tests verify behavior, while ShellCheck catches
-shell-language problems that tests may not execute directly, such as unsafe
-word splitting, ambiguous `A && B || C` control flow, and accidental command
-substitution inside heredocs.
-
-The Makefile follows sourced WSLX libraries during linting so the static
-analysis understands the project's modular shell structure.
+ShellCheck is the static-analysis tool used for WSLX shell code. Runtime tests
+verify behavior; ShellCheck catches shell-language problems that tests may not
+execute directly.
 
 ## Validate
 
@@ -99,18 +60,24 @@ make lint
 make check
 ```
 
-`make check` is the pre-commit gate.
+`make check` is the pre-commit gate. In an interactive terminal it prints
+colored PASS/FAIL output plus a final summary and rerun command for failed test
+suites.
 
-ShellCheck remains an optional external dependency so the dependency-free test
-suite can still run on a fresh environment. For WSLX maintainers, however,
-ShellCheck should be installed and `make lint` should pass before committing or
-publishing a validated baseline.
+For plain logs or CI-style output:
+
+```bash
+NO_COLOR=1 make check
+```
+
+ShellCheck remains optional for users, but maintainers should install it and
+require a clean lint before publishing a validated baseline.
 
 ## Commit naming
 
-Use a task number plus a concise conventional message, for example:
+Use the task number plus a concise conventional message, for example:
 
 ```text
 chore: WSLX-001 project foundation
-feat: WSLX-002 add PathX
+feat: WSLX-002 add path interop
 ```
