@@ -1,13 +1,36 @@
-# Bash completion for the foundation command set.
-_wslx_complete() {
-    local current
-    current="${COMP_WORDS[COMP_CWORD]}"
+# Bash completion for WSLX commands and command-specific options.
 
+_wslx_complete() {
+    local current command_name
+
+    current="${COMP_WORDS[COMP_CWORD]}"
+    command_name="${COMP_WORDS[1]:-}"
+
+    # First argument after `wslx`: complete top-level commands.
     if (( COMP_CWORD == 1 )); then
-        COMPREPLY=( $(compgen -W "help version doctor uninstall" -- "$current") )
-    else
-        COMPREPLY=()
+        COMPREPLY=(
+            $(compgen -W "help version doctor path uninstall" -- "$current")
+        )
+        return
     fi
+
+    # PathX-specific options.
+    if [[ "$command_name" == "path" ]]; then
+        case "$current" in
+            -*)
+                COMPREPLY=(
+                    $(compgen -W "--to-wsl --to-windows --help" -- "$current")
+                )
+                ;;
+            *)
+                COMPREPLY=()
+                ;;
+        esac
+
+        return
+    fi
+
+    COMPREPLY=()
 }
 
 complete -F _wslx_complete wslx

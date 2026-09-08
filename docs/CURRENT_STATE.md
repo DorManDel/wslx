@@ -1,7 +1,7 @@
 # WSLX Current State
 
 Version: `0.1.0-dev`  
-Phase: **Foundation**
+Phase: **WSLX-002 — PathX**
 
 ## WSLX-001 — Foundation Commit
 
@@ -27,13 +27,6 @@ Status: **COMPLETE**
 - [x] real WSL validation: tests, lint, and `wslx doctor`
 
 
-## Active command set
-
-- `wslx help`
-- `wslx version`
-- `wslx doctor`
-- `wslx uninstall`
-
 ## Foundation validation
 
 Status: **COMPLETE**
@@ -47,9 +40,48 @@ Status: **COMPLETE**
 - [x] uninstall
 - [x] reinstall
 
-## Next feature
+## WSLX-002 — PathX
 
-**WSLX-002 — PathX**
+Status: **IN PROGRESS**
 
-Implement the first real feature module: Windows ↔ WSL path conversion, with
-unit tests and `docs/commands/path.md` line-by-line explanation.
+Goal: implement Windows ↔ WSL path conversion as the first real WSLX feature.
+
+### Command interface
+
+```bash
+wslx path <path>
+wslx path --to-wsl <path>
+wslx path --to-windows <path>
+```
+
+### Completed
+
+- [x] PathX command module created
+- [x] dispatcher integration
+- [x] automatic Windows → WSL conversion
+- [x] automatic WSL → Windows conversion
+- [x] explicit `--to-wsl`
+- [x] explicit `--to-windows`
+- [x] paths containing spaces
+- [x] command help
+- [x] argument/error tests
+- [x] installer copies PathX command module
+- [x] PathX tests pass from the development checkout
+- [x] installed PathX execution test
+- [x] Bash completion update
+- [x] `docs/commands/path.md`
+- [x] Mapxplanation updated for PathX structure
+
+### Validation
+
+- [x] installer test: 11 passed, 0 failed
+- [x] map test: 32 passed, 0 failed
+- [x] PathX test: 8 passed, 0 failed
+- [x] Foundation test: 3 passed, 0 failed
+- [x] ShellCheck
+- [x] `git diff --check`
+- [x] final `make check`
+
+WSLX-002 — PathX is complete.
+
+Current step: review, commit, push, and merge the PathX branch.

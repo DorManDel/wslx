@@ -11,10 +11,11 @@
 wslx/
 |
 |-- bin/                 ENTRY POINT
-|   `-- wslx             parse -> load core -> dispatch
+|   `-- wslx             locate -> load -> parse -> dispatch
 |
 |-- commands/            FEATURE BEHAVIOR
-|   `-- README.md        command-module contract; PathX starts WSLX-002
+|   |-- README.md        command-module contract
+|   `-- path.sh          Windows ↔ WSL PathX command
 |
 |-- lib/                 SHARED LOGIC
 |   |-- core.sh          environment/version/common command helpers
@@ -22,137 +23,222 @@ wslx/
 |
 |-- shell/               PARENT-SHELL INTEGRATION
 |   `-- bash/
-|       `-- wslx.bash    future wcd/smart-cd style functions
+|       `-- wslx.bash    future parent-shell features
 |
 |-- completions/         TAB COMPLETION
-|   `-- bash/wslx        completion for current WSLX commands
+|   `-- bash/wslx        top-level commands + PathX options
 |
 |-- scripts/             DEVELOPER AUTOMATION
 |   `-- new-change.sh    timestamped engineering record generator
 |
 |-- tests/               AUTOMATED SAFETY NET
 |   |-- run.sh           executes every test suite
-|   |-- testlib.sh       tiny dependency-free assertions
+|   |-- testlib.sh       shared dependency-free assertions
 |   |-- test-foundation.sh
-|   |-- test-install.sh
-|   `-- test-map.sh      enforces this living map
+|   |-- test-install.sh  install/uninstall + installed PathX
+|   |-- test-map.sh      enforces this living map
+|   `-- test-path.sh     PathX command behavior
 |
 |-- docs/                EXPLANATION + CONTINUITY
-|   |-- MAP.md           this canonical map
+|   |-- MAP.md           canonical structural map
+|   |-- FOLDERS.md       folder ownership / code-placement guide
 |   |-- ARCHITECTURE.md  system boundaries and design rules
-|   |-- DEVELOPMENT.md   how every change is performed
-|   |-- CURRENT_STATE.md current completed/next task
-|   |-- ROADMAP.md       future command idea catalog
-|   |-- commands/        deep command explanations
+|   |-- DEVELOPMENT.md   development workflow
+|   |-- CURRENT_STATE.md current completed/active task
+|   |-- ROADMAP.md       future command catalog
+|   |-- commands/
+|   |   |-- README.md    command-documentation contract
+|   |   `-- path.md      PathX detailed explanation
 |   `-- changes/         timestamped engineering records
 |
 |-- man/                 TERMINAL REFERENCE DOCS
-|   `-- wslx.1           basic man page
+|   `-- wslx.1           terminal manual page
 |
-|-- install.sh           one-command source-checkout installer
+|-- install.sh           per-user installer
 |-- uninstall.sh         safe package removal
 |-- Makefile             developer control panel
-|-- VERSION              single package version value
-|-- README.md            user-facing project introduction
-|-- CHANGELOG.md         release-level summary history
+|-- VERSION              package version
+|-- README.md            user-facing introduction
+|-- CHANGELOG.md         release-level history
 |-- LICENSE              project license
-├── .gitattributes       Git text / line-ending portability policy
-`-- .gitignore           excludes local/generated noise
+|-- .gitattributes       Git text / line-ending policy
+`-- .gitignore           local/generated file exclusions
 ```
 
 ## 2. Sector responsibilities
 
 | Sector | Simple meaning | Detailed responsibility |
 |---|---|---|
-| `bin/` | Entry point. | Contains the executable a user invokes. It should locate WSLX, load libraries, parse top-level arguments and dispatch; feature logic should not accumulate here. |
-| `commands/` | What each command does. | One module per real feature such as path/open/clip. Commands orchestrate shared libraries and external tools while keeping feature-specific behavior isolated. |
-| `lib/` | Reusable building blocks. | Common logic used by multiple commands: WSL detection, path primitives, UI/error helpers and later process/config helpers. |
-| `shell/` | Things only Bash itself can do. | Functions that must modify parent-shell state, such as `wcd`. We source one package-owned file instead of injecting many functions directly into `.bashrc`. |
-| `completions/` | TAB knows WSLX. | Shell-specific completion definitions so commands/options can be discovered interactively without memorization. |
-| `scripts/` | Tools for developing WSLX. | Automation used by maintainers, not normal end users: change-record creation, future release helpers, documentation validation, etc. |
-| `tests/` | Automatic proof. | Dependency-free checks for CLI contracts, installation safety, idempotence, uninstall cleanup and documentation-map discipline. |
-| `docs/` | Why the project is built this way. | Architecture, current state, workflow, command teaching documents and timestamped continuity records. Detailed learning explanations live here rather than overcrowding production source. |
-| `man/` | Fast terminal manual. | Concise reference designed for `man wslx`; it complements, rather than replaces, the deeper docs. |
-| repository root | Lifecycle/control. | Install/uninstall, Make targets, versioning, Git portability policy, user README, changelog, license and repository hygiene. |
+| `bin/` | Entry point. | Contains the executable a user invokes. It locates WSLX, loads shared libraries and feature modules, parses top-level arguments, and dispatches commands. |
+| `commands/` | Feature behavior. | One module per user-facing command. PathX lives here so feature logic does not accumulate inside the main dispatcher. |
+| `lib/` | Reusable logic. | Shared helpers used by multiple parts of WSLX, such as environment detection, version handling, UI, and errors. |
+| `shell/` | Parent-shell behavior. | Functions that must execute inside the user's current shell because a child process cannot modify parent-shell state. |
+| `completions/` | TAB completion. | Shell-specific completion rules for WSLX commands and command-specific options. |
+| `scripts/` | Developer automation. | Maintainer tools such as timestamped change-record creation. |
+| `tests/` | Automatic proof. | Verifies CLI behavior, PathX conversion, installation, installed execution, uninstall safety, and structural documentation rules. |
+| `docs/` | Project knowledge. | Architecture, folder ownership, workflow, current state, feature explanations, roadmap, and historical change records. |
+| `man/` | Terminal reference. | Short manual documentation intended for installed users. |
+| repository root | Lifecycle/control. | Installation, uninstall, Make targets, versioning, Git policy, README, changelog, license, and repository hygiene. |
 
 ## 3. File-by-file explanation
 
 | File | Why it exists |
 |---|---|
-| `.gitattributes` | Defines Git text and line-ending portability rules across Windows and WSL. It normalizes repository text and forces Linux-oriented files such as `.sh` and `.bash` to use LF. It does not control Unix executable permissions; mode-only NTFS changes are handled locally with `git config core.fileMode false`. |
-| `.gitignore` | Keeps editor, OS, temporary test and local environment noise out of Git history. |
-| `VERSION` | Single source for the current WSLX version used by CLI/docs/installations. |
-| `LICENSE` | Defines legal reuse/distribution terms; Foundation uses MIT. |
-| `README.md` | First page for a user: what WSLX is, how to validate, install and uninstall it. |
-| `CHANGELOG.md` | Human-readable release-level summary; detailed timestamp logs stay under `docs/changes/`. |
-| `Makefile` | Easy control surface: `make test`, `check`, `install`, `uninstall`, `doctor`, `change`. |
-| `install.sh` | Detects WSL, copies files into the per-user prefix, creates one managed Bash block, and supports safe repeat installation. |
-| `uninstall.sh` | Removes only WSLX-owned files plus the managed Bash block while preserving unrelated user configuration. |
-| `bin/wslx` | Main executable and dispatcher. Foundation exposes `help`, `version`, `doctor`, and installed `uninstall`. |
-| `commands/README.md` | Documents the command-module boundary before the first real module arrives in WSLX-002. |
-| `lib/core.sh` | Shared environment/version/command-presence primitives with no UI concerns. |
-| `lib/ui.sh` | Shared colored status/error output, automatically disabled for non-terminal output or `NO_COLOR`. |
-| `shell/bash/wslx.bash` | Single Bash integration source file; future shell-state functions live here. |
-| `completions/bash/wslx` | Bash completion for the current top-level command set. |
-| `scripts/new-change.sh` | Generates timestamped `docs/changes/*.md` records in the machine's local timezone. |
-| `tests/run.sh` | Finds and runs each `test-*.sh` suite and combines their exit status. |
-| `tests/testlib.sh` | Minimal assertion helpers so tests need no Bats/Python/npm dependency. |
-| `tests/test-foundation.sh` | Verifies version/help/unknown-command behavior of the entry point. |
-| `tests/test-install.sh` | Installs into a temporary HOME, tests idempotence, tests installed execution, then verifies safe uninstall. |
-| `tests/test-map.sh` | Ensures every Git-relevant structural file (except timestamp log instances) is explicitly named in this Mapxplanation while respecting `.gitignore`. |
-| `docs/MAP.md` | Canonical living architecture + sector + file explanation. |
-| `docs/ARCHITECTURE.md` | Records boundaries, safe smart-path policy, installation model and map invariant. |
-| `docs/DEVELOPMENT.md` | Defines the update discipline: record -> code -> tests -> docs/map -> check -> commit. |
-| `docs/CURRENT_STATE.md` | Tiny continuity file showing completed foundation and the next numbered task. |
-| `docs/ROADMAP.md` | Lists future command ideas with simple and detailed descriptions plus existing-tool inspiration. |
-| `docs/commands/README.md` | Template/contract for the deep explanation page each real command will receive. |
-| `man/wslx.1` | Short Unix man-page reference for the foundation CLI. |
+| `.gitattributes` | Defines repository text and line-ending portability rules across Windows and WSL. |
+| `.gitignore` | Keeps personal editor state, temporary files, and generated/local noise outside Git history. |
+| `VERSION` | Single source for the current WSLX version. |
+| `LICENSE` | Defines project reuse and distribution terms. |
+| `README.md` | User-facing introduction, installation, and basic usage. |
+| `CHANGELOG.md` | Release-level project history. |
+| `Makefile` | Developer control surface for tests, lint, checks, install, uninstall, doctor, and change records. |
+| `install.sh` | Installs WSLX into the per-user prefix, including shared libraries, PathX, shell integration, completion, documentation, and manual files. |
+| `uninstall.sh` | Removes WSLX-owned files and its managed Bash block while preserving unrelated user configuration. |
+| `bin/wslx` | Main CLI executable and dispatcher. Loads shared libraries and feature modules, including PathX. |
+| `commands/README.md` | Defines the command-module boundary and rules for feature implementations. |
+| `commands/path.sh` | Implements PathX conversion, automatic direction detection, explicit modes, argument validation, errors, and help. |
+| `lib/core.sh` | Shared WSL environment, version, and command-presence helpers. |
+| `lib/ui.sh` | Shared status, warning, error, and color presentation. |
+| `shell/bash/wslx.bash` | Bash integration for features that must execute in the current shell. |
+| `completions/bash/wslx` | Bash completion for WSLX top-level commands and PathX-specific options. |
+| `scripts/new-change.sh` | Generates timestamped `docs/changes/*.md` engineering records. |
+| `tests/run.sh` | Finds and executes each `test-*.sh` test suite and combines their status. |
+| `tests/testlib.sh` | Minimal shared assertion helpers used by the test suites. |
+| `tests/test-foundation.sh` | Verifies version, help, and unknown-command foundation behavior. |
+| `tests/test-install.sh` | Verifies installation layout, PathX packaging, installed PathX execution, idempotence, and safe uninstall. |
+| `tests/test-map.sh` | Ensures every Git-relevant structural file is indexed in this Mapxplanation while respecting `.gitignore`. |
+| `tests/test-path.sh` | Verifies automatic and explicit PathX conversion, spaces, errors, and help behavior. |
+| `docs/MAP.md` | Canonical living structural and responsibility map. |
+| `docs/FOLDERS.md` | Explains what each project directory owns and where new code belongs. |
+| `docs/ARCHITECTURE.md` | Records system boundaries and architecture decisions. |
+| `docs/DEVELOPMENT.md` | Defines the WSLX development and validation workflow. |
+| `docs/CURRENT_STATE.md` | Records completed work and the currently active task. |
+| `docs/ROADMAP.md` | Catalog of future WSLX commands and capabilities. |
+| `docs/commands/README.md` | Template and contract for command-specific documentation. |
+| `docs/commands/path.md` | Detailed PathX command contract, behavior, detection rules, errors, examples, and flow. |
+| `man/wslx.1` | Short terminal manual for WSLX. |
 
-`docs/changes/*.md` are timestamped instances of one documented log format and
-are intentionally treated as a sector by the map-index test rather than forcing
-the file table to grow on every timestamp.
+`docs/changes/*.md` are timestamped instances of one documented history format.
+They are treated as a directory sector instead of requiring one MAP row for
+every generated timestamp.
 
-## 4. Data/control flow
+## 4. PathX control flow
 
 ```text
-                    user types: wslx ...
-                             |
-                             v
-                        bin/wslx
-                             |
-                  +----------+----------+
-                  |                     |
-                  v                     v
-               lib/core.sh           lib/ui.sh
-                  |
-          future dispatcher
-                  |
-                  v
-              commands/*.sh
-                  |
-          Windows / Linux tools
+user
+ |
+ |  wslx path ...
+ v
+bin/wslx
+ |
+ +--> lib/core.sh
+ |
+ +--> lib/ui.sh
+ |
+ v
+top-level dispatcher
+ |
+ |  command = path
+ v
+commands/path.sh
+ |
+ +--> parse PathX options
+ |
+ +--> validate one path argument
+ |
+ +--> verify wslpath exists
+ |
+ +--> automatic detection
+ |       |
+ |       +--> Windows path -> wslpath -u
+ |       |
+ |       `--> WSL path     -> wslpath -w
+ |
+ `--> explicit mode
+         |
+         +--> --to-wsl     -> wslpath -u
+         |
+         `--> --to-windows -> wslpath -w
+ |
+ v
+converted path
+```
 
+## 5. Installed package flow
+
+```text
+repository
+    |
+    v
+install.sh
+    |
+    +--> ~/.local/bin/wslx
+    |
+    `--> ~/.local/share/wslx/
+            |
+            |-- commands/path.sh
+            |
+            |-- lib/core.sh
+            |-- lib/ui.sh
+            |
+            |-- shell/bash/wslx.bash
+            |
+            `-- completions/bash/wslx
+```
+
+`tests/test-install.sh` verifies that PathX is copied into this layout and that
+the installed executable can successfully execute the PathX command.
+
+## 6. Shell completion flow
+
+```text
 Bash startup
     |
     v
-managed .bashrc block
+~/.bashrc
+    |
+    v
+WSLX managed block
     |
     +--> shell/bash/wslx.bash
+    |
     `--> completions/bash/wslx
+                |
+                +--> wslx pa<TAB>
+                |       -> path
+                |
+                `--> wslx path --to<TAB>
+                        -> --to-wsl
+                        -> --to-windows
 ```
 
-## 5. Update rule
+## 7. Update rule
 
-A future change such as `WSLX-002 — PathX` is incomplete until all relevant
-layers move together:
+A WSLX feature is incomplete until every affected layer is updated.
+
+For WSLX-002 — PathX:
 
 ```text
 commands/path.sh            implementation
-lib/paths.sh                reusable path logic (if needed)
-tests/test-path.sh          automated behavior
+bin/wslx                    dispatch
+install.sh                  installed packaging
 completions/bash/wslx       discoverability
-docs/commands/path.md       deep explanation
-docs/MAP.md                 map/responsibility update
-docs/CURRENT_STATE.md       continuity
-docs/changes/<timestamp>    what/when/why/validation
+tests/test-path.sh           behavior proof
+tests/test-install.sh        installed-package proof
+docs/commands/path.md        feature explanation
+docs/FOLDERS.md              folder ownership reference
+docs/MAP.md                  structural/responsibility map
+docs/CURRENT_STATE.md        current progress
+docs/changes/<timestamp>     historical what/why/result
+```
+
+Validation gate:
+
+```text
+make check
+    |
+    +--> automated tests
+    |
+    +--> Mapxplanation verification
+    |
+    `--> ShellCheck
 ```

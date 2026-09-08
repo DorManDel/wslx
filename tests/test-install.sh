@@ -14,6 +14,9 @@ HOME="$TEST_HOME" WSLX_ALLOW_NON_WSL=1 "$ROOT_DIR/install.sh" --quiet
 
 assert_file_exists "$TEST_HOME/.local/bin/wslx" "installer creates CLI entry point"
 assert_file_exists "$TEST_HOME/.local/share/wslx/lib/core.sh" "installer copies shared libraries"
+assert_file_exists \
+    "$TEST_HOME/.local/share/wslx/commands/path.sh" \
+    "installer copies PathX command module"
 
 marker_count="$(grep -Fxc '# >>> WSLX managed block >>>' "$TEST_HOME/.bashrc")"
 assert_eq "1" "$marker_count" "installer injects one managed Bash block"
@@ -25,6 +28,16 @@ assert_eq "1" "$marker_count" "reinstall does not duplicate managed Bash block"
 
 installed_version="$(HOME="$TEST_HOME" "$TEST_HOME/.local/bin/wslx" version)"
 assert_eq "$(cat "$ROOT_DIR/VERSION")" "$installed_version" "installed CLI resolves installed data"
+
+installed_path="$(
+    HOME="$TEST_HOME" \
+    "$TEST_HOME/.local/bin/wslx" path 'D:\Programming\Test'
+)"
+
+assert_eq \
+    "/mnt/d/Programming/Test" \
+    "$installed_path" \
+    "installed PathX converts Windows path to WSL"
 
 HOME="$TEST_HOME" "$TEST_HOME/.local/bin/wslx" uninstall --yes >/dev/null
 assert_file_missing "$TEST_HOME/.local/bin/wslx" "uninstall removes CLI entry point"

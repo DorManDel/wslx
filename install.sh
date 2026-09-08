@@ -88,12 +88,20 @@ mkdir -p "$BIN_DIR" "$DATA_DIR" "$MAN_DIR"
 # Replace the previous WSLX data atomically enough for a small shell package:
 # remove only our own data directory, recreate it, then copy repository files.
 rm -rf "$DATA_DIR"
-mkdir -p "$DATA_DIR/lib" "$DATA_DIR/shell/bash" "$DATA_DIR/completions/bash" "$DATA_DIR/docs" "$DATA_DIR/man"
+mkdir -p \
+    "$DATA_DIR/lib" \
+    "$DATA_DIR/commands" \
+    "$DATA_DIR/shell/bash" \
+    "$DATA_DIR/completions/bash" \
+    "$DATA_DIR/docs" \
+    "$DATA_DIR/man"
 
 install -m 0755 "$ROOT_DIR/bin/wslx" "$BIN_DIR/wslx"
 install -m 0644 "$ROOT_DIR/VERSION" "$DATA_DIR/VERSION"
 install -m 0644 "$ROOT_DIR/lib/core.sh" "$DATA_DIR/lib/core.sh"
 install -m 0644 "$ROOT_DIR/lib/ui.sh" "$DATA_DIR/lib/ui.sh"
+
+install -m 0644 "$ROOT_DIR/commands/path.sh" "$DATA_DIR/commands/path.sh"
 install -m 0644 "$ROOT_DIR/shell/bash/wslx.bash" "$DATA_DIR/shell/bash/wslx.bash"
 install -m 0644 "$ROOT_DIR/completions/bash/wslx" "$DATA_DIR/completions/bash/wslx"
 install -m 0755 "$ROOT_DIR/uninstall.sh" "$DATA_DIR/uninstall.sh"

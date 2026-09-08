@@ -49,6 +49,10 @@ source "$WSLX_ROOT/lib/ui.sh"
 # shellcheck source=lib/core.sh
 source "$WSLX_ROOT/lib/core.sh"
 
+# Load the PathX feature command.
+# shellcheck source=commands/path.sh
+source "$WSLX_ROOT/commands/path.sh"
+
 show_help() {
     cat <<EOF_HELP
 WSLX $(wslx_version)
@@ -57,11 +61,12 @@ Windows ↔ WSL productivity toolkit
 Usage:
   wslx <command> [options]
 
-Foundation commands:
+Commands:
   help        Show this help
   version     Print the installed version
   doctor      Check the current WSLX environment
   uninstall   Remove the current user installation
+  path        Convert Windows ↔ WSL paths
 
 Planned next:
   path        Convert Windows ↔ WSL paths (WSLX-002)
@@ -145,6 +150,9 @@ case "$command_name" in
         ;;
     doctor)
         run_doctor "$@"
+        ;;
+    path)
+        wslx_path_main "$@"
         ;;
     uninstall)
         run_uninstall "$@"
