@@ -68,8 +68,20 @@ after failure because the first attempt may already have produced side effects.
 ## Shell-state rule
 
 A child executable cannot change the parent Bash process's working directory.
-Therefore commands such as future `wslx cd` / `wcd` are implemented through
-`shell/bash/wslx.bash`, while their path-normalization logic remains reusable.
+`wslx cd` / `wcd` therefore run through `shell/bash/wslx.bash`.
+
+```text
+parent Bash
+   |
+   +--> child `command wslx path --wsl <input>`
+   |        `--> prints normalized destination, then exits
+   |
+   `--> parent Bash runs `builtin cd -- <destination>`
+            `--> Bash uses chdir(2)
+```
+
+The child only calculates the destination. It never changes the parent. After
+the child exits, the parent Bash process performs the directory change.
 
 ## Windows interop rule
 

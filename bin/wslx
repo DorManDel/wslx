@@ -51,6 +51,7 @@ Usage:
 
 Commands:
   path        Make a path usable in WSL
+  cd          Change the current Bash directory (requires shell integration)
   doctor      Check the current WSLX environment
   version     Print the installed version
   uninstall   Remove the current user installation
@@ -124,6 +125,12 @@ run_uninstall() {
     exec "$WSLX_ROOT/uninstall.sh" "$@"
 }
 
+run_cd_shell_required() {
+    wslx_error "cd must run through WSLX Bash integration so it can change the current shell"
+    printf 'wslx: start a new Bash shell or run: source ~/.bashrc\n' >&2
+    return 1
+}
+
 wslx_looks_like_path_operand() {
     local value="$1"
 
@@ -155,6 +162,10 @@ case "$command_name" in
     path)
         shift
         wslx_path_main "$@"
+        ;;
+    cd)
+        shift
+        run_cd_shell_required "$@"
         ;;
     --wsl|--win|--link)
         wslx_path_main "$@"

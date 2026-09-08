@@ -1,64 +1,64 @@
+
 # WSLX Current State
 
-Version: `0.1.0-dev`  
-Phase: **WSLX-002 — Path Interop final refinement**
+Version: `0.1.0-dev`
+Phase: **WSLX-003 — CD / WCD validation**
 
 ## WSLX-001 — Foundation
 
 Status: **COMPLETE**
 
-Foundation, installer/uninstaller, shell integration, completion foundation,
-Mapxplanation, portability rules and clean-clone validation are complete.
-
 ## WSLX-002 — Path Interop
 
-Status: **IN PROGRESS — FINAL GATE**
+Status: **COMPLETE — MERGED TO MAIN**
 
-Goal: make Windows/WSL paths predictable and easy to use from WSL.
+## WSLX-003 — CD / WCD
 
-### Current interface
+Status: **IN PROGRESS — VALIDATION**
+
+Interface:
 
 ```bash
-wslx <path>
-wslx path <path>
-wslx --wsl <path>
-wslx --win <path>
-wslx --link <path>
+wslx cd <path>
+wcd <path>
 ```
 
-### Completed
+Implemented:
 
-- [x] Windows input normalizes to WSL by default
-- [x] WSL input stays usable in WSL by default
-- [x] direct `wslx <path>` shortcut
-- [x] explicit `wslx path <path>` form
-- [x] `--wsl`, `--win`, `--link`
-- [x] interactive `--link` confirmed clickable in the user's VS Code WSL terminal
-- [x] plain-text `--link` fallback for captured output
-- [x] CLI grammar documented in `docs/COMMANDS.md`
-- [x] future command naming/contracts normalized
-- [x] README command table and workflow sections redesigned
-- [x] WSLX SVG logo added
-- [x] command-document contract template standardized
-- [x] colored test assertions and suite summary prepared
-- [x] failed-suite output includes exit code and rerun command
+- [x] parent-shell implementation
+- [x] canonical `wslx cd`
+- [x] shortcut `wcd`
+- [x] Path Interop reuse
+- [x] directory validation
+- [x] direct-child refusal
+- [x] Bash completion
+- [x] `tests/test-cd.sh`
+- [x] installed shell-integration coverage
+- [x] command/architecture/MAP documentation
 
-### Last validated Path Interop baseline
+Execution model:
 
-- [x] Foundation: 3 passed, 0 failed
-- [x] Installer: 13 passed, 0 failed
-- [x] Map: 33 passed, 0 failed
-- [x] Path: 14 passed, 0 failed
-- [x] ShellCheck passed
-- [x] `git diff --check` passed
-- [x] installed smoke tests passed
+```text
+child WSLX
+  -> calculates normalized destination
+  -> prints it
+  -> exits
 
-### Remaining after applying this refinement batch
+parent Bash
+  -> receives destination
+  -> runs builtin cd
+  -> Bash uses chdir(2)
+  -> same shell continues in new directory
+```
 
-- [ ] run final `make check`
-- [ ] run final `git diff --check`
-- [ ] inspect `git status -sb`
-- [ ] commit and push PR #1
+The child never changes the parent.
 
-Current step: apply the final README/logo/test-UX refinement and run the final
-gate before commit.
+Remaining:
+
+- [ ] `make check`
+- [ ] `NO_COLOR=1 make check`
+- [ ] `git diff --check`
+- [ ] reinstall + smoke test
+- [ ] commit, push, PR, merge
+
+Next: `wslx open <path>` / `wopen <path>`.

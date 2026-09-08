@@ -20,6 +20,9 @@ assert_file_exists \
 assert_file_exists \
     "$TEST_HOME/.local/share/wslx/docs/COMMANDS.md" \
     "installer copies CLI grammar reference"
+assert_file_exists \
+    "$TEST_HOME/.local/share/wslx/shell/bash/wslx.bash" \
+    "installer copies Bash shell integration"
 
 marker_count="$(grep -Fxc '# >>> WSLX managed block >>>' "$TEST_HOME/.bashrc")"
 assert_eq "1" "$marker_count" "installer injects one managed Bash block"
@@ -49,6 +52,22 @@ assert_eq \
     'D:\Programming\Test' \
     "$installed_windows_path" \
     "installed CLI returns Windows path on request"
+
+
+mkdir -p "$TEST_HOME/cd target"
+installed_cd_path="$(
+    HOME="$TEST_HOME" \
+    PATH="$TEST_HOME/.local/bin:$PATH" \
+    bash --noprofile --norc -c '
+        source "$HOME/.local/share/wslx/shell/bash/wslx.bash"
+        wslx cd "$HOME/cd target"
+        pwd
+    '
+)"
+assert_eq \
+    "$TEST_HOME/cd target" \
+    "$installed_cd_path" \
+    "installed Bash integration changes the current shell directory"
 
 HOME="$TEST_HOME" "$TEST_HOME/.local/bin/wslx" uninstall --yes >/dev/null
 assert_file_missing "$TEST_HOME/.local/bin/wslx" "uninstall removes CLI entry point"

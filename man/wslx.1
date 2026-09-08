@@ -14,6 +14,12 @@ wslx \- Windows and WSL productivity toolkit
 .B wslx
 .RI --link " <path>"
 .br
+.B wslx cd
+.RI " <path>"
+.br
+.B wcd
+.RI " <path>"
+.br
 .B wslx
 .RI < command > " [options]"
 .SH DESCRIPTION
@@ -25,6 +31,15 @@ explicit options can return Windows form or an interactive hyperlink.
 .B path
 Make a path usable in WSL. Windows drive paths are converted; WSL/Linux paths
 remain unchanged.
+
+.TP
+.B cd
+Normalize a Windows, WSL, or relative directory path and change the current
+Bash working directory. Requires WSLX Bash shell integration.
+.TP
+.B wcd
+Shortcut for
+.BR "wslx cd" .
 .TP
 .B doctor
 Check the current WSLX environment and installation.

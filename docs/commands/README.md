@@ -64,6 +64,7 @@ Once implemented, extend the command document with:
 9. Automated tests.
 10. Planned integrations or improvements.
 
-Current command document:
+Current command documents:
 
 - `path.md` — WSLX-002 path interoperability.
+- `cd.md` — WSLX-003 parent-shell directory navigation.

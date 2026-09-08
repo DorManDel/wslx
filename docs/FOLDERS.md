@@ -47,9 +47,7 @@ Future examples include `open.sh`, `clip.sh` and `run.sh`.
 
 **Purpose:** behavior that must execute in the user's current shell.
 
-- `shell/bash/wslx.bash`
-
-Future examples: `wslx cd <path>` shell handling and the `wcd` shortcut.
+- `shell/bash/wslx.bash` — implements current-shell `wslx cd` handling and the `wcd` shortcut.
 
 ---
 
@@ -73,6 +71,7 @@ Update this when commands or options are added or renamed.
 - `test-install.sh` — installation lifecycle and installed path behavior.
 - `test-map.sh` — structural documentation contract.
 - `test-path.sh` — path interoperability behavior.
+- `test-cd.sh` — parent-shell `wslx cd` / `wcd` behavior.
 
 ---
 

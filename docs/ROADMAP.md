@@ -8,8 +8,8 @@ features extend one consistent CLI instead of inventing their own naming style.
 | Command | Alias | Status | Purpose |
 |---|---|---|---|
 | `wslx path <path>` | `wslx <path>` | Current | Make a path usable in WSL; use `--win` for Windows form and `--link` for an interactive Windows hyperlink. |
-| `wslx cd <path>` | `wcd <path>` | Next | Convert a Windows/WSL path if needed and change the current Bash directory. |
-| `wslx open <path>` | `wopen <path>` | Planned | Open a file or folder through Windows/Explorer behavior. |
+| `wslx cd <path>` | `wcd <path>` | Current | Normalize a Windows/WSL/relative path and change the current Bash directory through shell integration. |
+| `wslx open <path>` | `wopen <path>` | Next | Open a file or folder through Windows/Explorer behavior. |
 | `wslx clip` | `wclip` | Planned | Copy arguments or stdin to the Windows clipboard. |
 | `wslx paste` | `wpaste` | Planned | Read Windows clipboard text into WSL. |
 | `wslx code <path>` | `wcode <path>` | Planned | Open a project or file in VS Code using the correct WSL/Windows path context. |
