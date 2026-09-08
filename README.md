@@ -26,6 +26,8 @@ commands under one consistent CLI.
 | `wslx path <path>` | Explicit/readable form of the same path operation. | `wslx path '/mnt/d/Projects/Demo'` | [Path](docs/commands/path.md) |
 | `wslx --win <path>` | Return the Windows representation. | `wslx --win '/mnt/d/Projects/Demo'` | [Path](docs/commands/path.md) |
 | `wslx --link <path>` | Show the Windows path as a clickable terminal link when supported. | `wslx --link ./README.md` | [Path](docs/commands/path.md) |
+| `wslx cd <path>` | Change the current Bash directory from a Windows, WSL, or relative path. | `wslx cd 'D:\\Projects\\Demo'` | [CD](docs/commands/cd.md) |
+| `wcd <path>` | Fast form of `wslx cd`. | `wcd /mnt/d/Projects/Demo` | [CD](docs/commands/cd.md) |
 | `wslx doctor` | Check that WSLX and its WSL environment are healthy. | `wslx doctor` | [CLI reference](docs/COMMANDS.md) |
 | `wslx version` | Print the installed version. | `wslx version` | [CLI reference](docs/COMMANDS.md) |
 | `wslx uninstall` | Remove the current-user installation. | `wslx uninstall` | [CLI reference](docs/COMMANDS.md) |
@@ -47,6 +49,12 @@ wslx --win '/mnt/d/Programming/Test'
 
 # Interactive Windows link
 wslx --link ./README.md
+
+# Navigate using a Windows path
+wslx cd 'D:\Programming\Test'
+
+# Same operation, shorter
+wcd /mnt/d/Programming/Test
 ```
 
 <details>

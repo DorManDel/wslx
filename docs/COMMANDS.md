@@ -39,6 +39,7 @@ command. Other commands remain explicit.
 | `wslx path --wsl <path>` | `wslx --wsl <path>` | Explicitly request WSL form. |
 | `wslx path --win <path>` | `wslx --win <path>` | Explicitly request Windows form. |
 | `wslx path --link <path>` | `wslx --link <path>` | Display Windows form as an interactive hyperlink when possible. |
+| `wslx cd <path>` | `wcd <path>` | Normalize a directory path and change the current Bash directory. |
 | `wslx doctor` | — | Diagnose WSLX and its environment. |
 | `wslx version` | `wslx --version` | Print the version. |
 | `wslx help` | `wslx --help` | Show top-level help. |
@@ -98,7 +99,6 @@ The reusable template lives in `docs/commands/README.md`.
 
 | Command | Alias | Core contract before implementation |
 |---|---|---|
-| `wslx cd <path>` | `wcd <path>` | Normalize for WSL, verify directory, then change the current Bash process. Shell integration is mandatory. |
 | `wslx open <path>` | `wopen <path>` | Normalize input, resolve Windows representation, open the actual file/folder through Windows without changing stdout semantics. |
 | `wslx clip [text]` | `wclip` | Copy arguments or stdin exactly to the Windows clipboard; status messages must not pollute piped data. |
 | `wslx paste` | `wpaste` | Read clipboard text into WSL stdout so it can be piped or redirected. |
@@ -112,6 +112,14 @@ The reusable template lives in `docs/commands/README.md`.
 | `wslx pick` | — | Return an interactively selected path using `fd/find` + optional `fzf`. |
 | `wslx update` | — | Update from a validated source/release, run validation, then reinstall. |
 | `wslx config` | — | Manage stable WSLX preferences without manual `.bashrc` edits. |
+
+
+## Current-shell command rule
+
+`wslx cd` is special because a child process cannot change its parent Bash
+shell. The child WSLX process only calculates the normalized destination
+and exits. The parent Bash process then runs its own `cd` builtin, which
+ultimately uses `chdir(2)`.
 
 ## Composition rule
 

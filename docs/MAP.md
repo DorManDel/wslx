@@ -26,7 +26,7 @@ wslx/
 |
 |-- shell/               PARENT-SHELL INTEGRATION
 |   `-- bash/
-|       `-- wslx.bash    future current-shell commands such as cd/wcd
+|       `-- wslx.bash    current-shell cd/wcd + normal CLI delegation
 |
 |-- completions/         TAB COMPLETION
 |   `-- bash/wslx        top-level commands + path options
@@ -40,7 +40,8 @@ wslx/
 |   |-- test-foundation.sh
 |   |-- test-install.sh  install/uninstall + installed path behavior
 |   |-- test-map.sh      enforces this living map
-|   `-- test-path.sh     path interoperability behavior
+|   |-- test-path.sh     path interoperability behavior
+|   `-- test-cd.sh       current-shell cd/wcd behavior
 |
 |-- docs/                EXPLANATION + CONTINUITY
 |   |-- COMMANDS.md      CLI grammar, names, options and alias contract
@@ -52,7 +53,8 @@ wslx/
 |   |-- ROADMAP.md       future command catalog
 |   |-- commands/
 |   |   |-- README.md    command-documentation contract
-|   |   `-- path.md      path interoperability explanation
+|   |   |-- path.md      path interoperability explanation
+|   |   `-- cd.md        parent-shell cd/wcd explanation
 |   `-- changes/         timestamped engineering records
 |
 |-- man/                 TERMINAL REFERENCE DOCS
@@ -104,7 +106,7 @@ wslx/
 | `commands/path.sh` | Implements default normalize-for-WSL behavior plus `--wsl`, `--win`, and `--link`. |
 | `lib/core.sh` | Shared WSL environment, version, and command-presence helpers. |
 | `lib/ui.sh` | Shared status, warning, error, and color presentation. |
-| `shell/bash/wslx.bash` | Bash integration reserved for features that must affect the current shell. |
+| `shell/bash/wslx.bash` | Implements current-shell `wslx cd` / `wcd`; ordinary commands delegate through `command wslx`. |
 | `completions/bash/wslx` | Bash completion for top-level commands/options and path-specific options. |
 | `scripts/new-change.sh` | Generates timestamped `docs/changes/*.md` engineering records. |
 | `tests/run.sh` | Finds and executes each `test-*.sh` suite and combines status. |
@@ -113,6 +115,7 @@ wslx/
 | `tests/test-install.sh` | Verifies installation layout, CLI grammar doc packaging, installed path semantics, idempotence, and safe uninstall. |
 | `tests/test-map.sh` | Ensures every Git-relevant structural file is indexed here while respecting `.gitignore`. |
 | `tests/test-path.sh` | Verifies default/explicit path semantics, direct path shortcuts, link fallback, spaces, errors, and help. |
+| `tests/test-cd.sh` | Verifies current-shell navigation, Windows/WSL/relative paths, delegation, and failure behavior. |
 | `docs/COMMANDS.md` | Canonical CLI grammar, naming policy, option names, alias policy, current commands, and planned command names. |
 | `docs/MAP.md` | Canonical living structural/responsibility map. |
 | `docs/FOLDERS.md` | Explains directory ownership and where new code belongs. |
@@ -122,6 +125,7 @@ wslx/
 | `docs/ROADMAP.md` | Future command catalog using the canonical command language. |
 | `docs/commands/README.md` | Contract for command-specific explanation documents. |
 | `docs/commands/path.md` | Detailed explanation of current path interoperability behavior. |
+| `docs/commands/cd.md` | Explains the parent/child model and documents `wslx cd` / `wcd`. |
 | `man/wslx.1` | Short terminal manual for current WSLX behavior. |
 
 `docs/changes/*.md` are timestamped instances of one documented history format.
@@ -222,20 +226,36 @@ install.sh
 
 `tests/test-install.sh` verifies both package layout and installed path behavior.
 
-## 7. Next command boundaries
 
-The path command translates; action commands remain separate:
+## 7. Current-shell cd flow
+
+```text
+wslx cd 'D:\Projects'
+        |
+        v
+shell/bash/wslx.bash
+        |
+        +--> child: command wslx path --wsl 'D:\Projects'
+        |              `--> /mnt/d/Projects
+        |                   child exits
+        |
+        `--> parent Bash: builtin cd -- /mnt/d/Projects
+                              `--> chdir(2)
+                                   |
+                                   v
+                          same shell, new cwd
+```
+
+The child never changes the parent. It computes the destination and exits;
+the parent Bash process then performs its own state-changing `cd`.
 
 ```text
 wslx path             translate/normalize
-wslx cd    / wcd      navigate current shell       (planned)
-wslx open  / wopen    open with Windows            (planned)
+wslx cd    / wcd      navigate current shell       (current)
+wslx open  / wopen    open with Windows            (next)
 wslx clip  / wclip    clipboard                    (planned)
 wslx run   / wrun     execute Windows program      (planned)
 ```
-
-`wslx cd` belongs partly in `shell/` because a child executable cannot change
-the parent Bash process.
 
 ## 8. Update rule
 

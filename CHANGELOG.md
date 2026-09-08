@@ -5,6 +5,17 @@ timestamped engineering records live in `docs/changes/`.
 
 ## [Unreleased]
 
+
+### Added — WSLX-003 CD / WCD
+
+- `wslx cd <path>` changes the current Bash directory from Windows, WSL, or relative input.
+- `wcd <path>` provides the fast navigation form.
+- Parent-shell integration reuses Path Interop.
+- Direct child execution refuses to fake a persistent `cd`.
+- Dedicated current-shell and installed-integration tests.
+- Parent/child/`chdir(2)` behavior documented simply.
+
+
 ### Added — WSLX-002 Path Interop
 
 - Windows paths normalize to WSL form by default.

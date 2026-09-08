@@ -13,7 +13,7 @@ _wslx_complete() {
             )
         else
             COMPREPLY=(
-                $(compgen -W "help version doctor path uninstall" -- "$current")
+                $(compgen -W "help version doctor path cd uninstall" -- "$current")
             )
         fi
         return
